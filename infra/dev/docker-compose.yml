@@ -1,0 +1,48 @@
+# MyBlog dev containers. Build context is the repo root.
+#
+#   docker compose -f infra/dev/docker-compose.yml up web
+#   docker compose -f infra/dev/docker-compose.yml up storybook
+#
+# Source is bind-mounted from the repo root so edits hot-reload. Container-side
+# node_modules are kept in named volumes so the host's (Windows) node_modules
+# never shadow the Linux-installed ones.
+
+services:
+  web:
+    build:
+      context: ../..
+      dockerfile: apps/web/Dockerfile
+    command: ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
+    ports:
+      - "127.0.0.1:4321:4321"
+    volumes:
+      - ../..:/repo
+      - web_node_modules:/repo/apps/web/node_modules
+    environment:
+      CHOKIDAR_USEPOLLING: "true"
+      CHOKIDAR_INTERVAL: "300"
+      NODE_OPTIONS: "--max-old-space-size=3072"
+    mem_limit: 4g
+    restart: unless-stopped
+    stop_grace_period: 5s
+
+  storybook:
+    build:
+      context: ../..
+      dockerfile: apps/web/Dockerfile
+    command: ["npm", "run", "storybook", "--", "--host", "0.0.0.0", "--no-open"]
+    ports:
+      - "127.0.0.1:6008:6008"
+    volumes:
+      - ../..:/repo
+      - web_node_modules:/repo/apps/web/node_modules
+    environment:
+      CHOKIDAR_USEPOLLING: "true"
+      CHOKIDAR_INTERVAL: "300"
+      NODE_OPTIONS: "--max-old-space-size=3072"
+    mem_limit: 4g
+    restart: unless-stopped
+    stop_grace_period: 5s
+
+volumes:
+  web_node_modules:

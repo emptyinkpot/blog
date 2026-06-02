@@ -1,0 +1,21 @@
+# Dependencies installed inside the container
+**/node_modules
+
+# Build outputs / caches
+**/dist
+**/.astro
+**/.cache
+**/.next
+**/.runtime
+apps/web/public/runtime
+public-data/runtime
+
+# VCS & local
+.git
+**/*.log
+.DS_Store
+Thumbs.db
+
+# Existing infra data volumes (not part of the web build)
+infra/composable-stack/directus
+infra/composable-stack/meilisearch
