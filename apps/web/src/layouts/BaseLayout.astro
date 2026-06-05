@@ -35,7 +35,7 @@ const useFullBleedWrap = hideSiteChrome && !barePage;
 const runtimeResources = getMyBlogRuntimeResources({ buildVersion });
 ---
 
-<html lang="zh-CN" data-theme="heritage">
+<html lang="zh-CN" data-theme="dark-violet">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width" />
@@ -76,7 +76,7 @@ const runtimeResources = getMyBlogRuntimeResources({ buildVersion });
         const storageKey = runtimeStorageKeys.visualSettings;
         const runtimeFolderStorageKey = runtimeStorageKeys.runtimeFolderSettings;
         const defaults = {
-          theme: 'heritage',
+          theme: 'dark-violet',
           cardTopAlpha: 0.92,
           cardBottomAlpha: 0.78,
           railTopAlpha: 0.9,
@@ -213,7 +213,7 @@ const runtimeResources = getMyBlogRuntimeResources({ buildVersion });
               images: {}
             }
           };
-          next.theme = input.theme === 'glass' ? 'glass' : 'heritage';
+          next.theme = input.theme === 'glass' ? 'glass' : 'dark-violet';
           for (const [key, range] of Object.entries(numericRanges)) {
             const value = Number(getPath(input, key) ?? input[key]);
             if (Number.isFinite(value)) {
