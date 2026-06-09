@@ -22,6 +22,7 @@
     "verify:updates": "node tools/validate-update-log.mjs",
     "verify:content": "node tools/validate-content-governance.mjs",
     "verify:frontend-contract": "node tools/validate-frontend-runtime-contract.mjs",
+    "verify:reader-interactions": "node tools/validate-reader-interactions.mjs",
     "verify:pwa": "node tools/validate-pwa-surface.mjs",
     "verify:workspace": "node tools/deploy-guard.mjs --check",
     "verify:governance": "node tools/validate-repo-governance.mjs",
@@ -54,6 +55,7 @@
     "check:updates": "npm run verify:updates",
     "check:content": "npm run verify:content",
     "check:frontend-contract": "npm run verify:frontend-contract",
+    "check:reader-interactions": "npm run verify:reader-interactions",
     "check:pwa": "npm run verify:pwa",
     "android:twa:validate": "node tools/generate-android-twa.mjs --validate-only",
     "android:twa:generate": "node tools/generate-android-twa.mjs --generate",
@@ -62,7 +64,7 @@
     "check:workspace": "npm run verify:workspace",
     "deploy:site": "node tools/deploy-static-site.mjs",
     "check:governance": "npm run verify:governance",
-    "check": "npm run runtime:content && npm run verify:updates && npm run verify:content && npm run verify:frontend-contract && npm run verify:pwa && npm run verify:workspace && npm run verify:governance && npm run verify:github-overview"
+    "check": "npm run runtime:content && npm run verify:updates && npm run verify:content && npm run verify:frontend-contract && npm run verify:reader-interactions && npm run verify:pwa && npm run verify:workspace && npm run verify:governance && npm run verify:github-overview"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
