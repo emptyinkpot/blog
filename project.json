@@ -184,11 +184,11 @@
     "serverRuntimeRoot": "/srv/myblog/site",
     "localActiveSourceRoot": "E:\\My Project\\MyBlog",
     "serverSourceCheckout": {
-      "status": "retired",
+      "status": "runtime-projector-workspace",
       "host": "ubuntu@124.220.233.126",
       "sourceRoot": "/srv/myblog/repo",
       "deploymentRoot": "/srv/myblog/site",
-      "rule": "GitHub Actions deploys built static output to the server; server source checkout must stay absent."
+      "rule": "/srv/myblog/repo is the systemd runtime projector code workspace only; it is forbidden as a deploy authority or editable production source."
     },
     "runtimeDatabase": {
       "status": "active",
@@ -257,8 +257,8 @@
     "mode": "reduction-not-feature-sprint",
     "thesis": "Stabilize the base before activating more runtimes. AppFlowy, Immich, Directus and Meilisearch remain target/skeleton services until file truth, MarkdownObject schema and Quartz runtime layer are stable.",
     "priorityOrder": [
-      "Syncthing or Obsidian Sync of complete vault into Linux:/home/vault/Obsidian hot mirror",
-      "Linux Vault hot mirror layout stability: /home/vault/Obsidian/docs, /home/vault/Obsidian/image, .obsidian and attachments",
+      "Syncthing or Obsidian Sync of complete vault into Linux:/home/vault/obsidian-git hot mirror",
+      "Linux Vault hot mirror layout stability: /home/vault/obsidian-git/docs, /home/vault/obsidian-git/image, .obsidian and attachments",
       "MarkdownObject schema freeze and validation",
       "tools/build-runtime-content-index.mjs refactor as the CMS kernel",
       "Quartz 4 / Flowershow runtime layer evaluation for wikilink, backlink, graph, callout and semantic markdown",
@@ -316,7 +316,7 @@
       "search": "Pagefind static archive search plus runtime feed filtering; not unified full-site dynamic search",
       "deploy": "npm run deploy:site",
       "storage": "Linux hot mirror plus OpenList/COS/Quark cold/blob/public browse boundary",
-      "openListBoundary": "OpenList exposes /Obsidian and cold/blob mounts; it does not own runtime build, projection, search, database, Pagefind, Astro dist, Syncthing hot mirror or node_modules"
+      "openListBoundary": "OpenList exposes /obsidian-git and cold/blob mounts; it does not own runtime build, projection, search, database, Pagefind, Astro dist, Syncthing hot mirror or node_modules"
     },
     "targetCandidates": {
       "quartz": {
@@ -429,11 +429,11 @@
     "incidentReference": "2026-05-07 stale .codex-runtime worktree deploy regression"
   },
   "contentPipeline": {
-    "status": "Runtime MarkdownObject projection active; Syncthing syncs the complete Windows E:\\Vaults\\Obsidian vault to Linux /home/vault/Obsidian, OpenList exposes public content at /openlist/Obsidian, and Windows watcher/scp content sync is disabled",
+    "status": "Runtime MarkdownObject projection active; Syncthing syncs the complete Windows E:\\Vaults\\Obsidian vault to Linux /home/vault/obsidian-git, OpenList exposes public content at /openlist/obsidian-git, and Windows watcher/scp content sync is disabled",
     "contentSourceBase": {
       "fileTruth": "Windows:E:\\Vaults\\Obsidian",
-      "serverHotMirror": "Linux:/home/vault/Obsidian",
-      "publicContentAccess": "/openlist/Obsidian",
+      "serverHotMirror": "Linux:/home/vault/obsidian-git",
+      "publicContentAccess": "/openlist/obsidian-git",
       "fileMapping": "OpenList public access layer",
       "frontendIndex": "public-data/runtime/content-index.json",
       "presentationShell": "Astro apps/web",
@@ -450,12 +450,12 @@
         "file-system sync",
         "server-local Linux Vault"
       ],
-      "targetRoot": "Linux:/home/vault/Obsidian",
+      "targetRoot": "Linux:/home/vault/obsidian-git",
       "folders": [
         {
           "id": "obsidian-vault",
           "localPath": "E:\\Vaults\\Obsidian",
-          "serverPath": "/home/vault/Obsidian",
+          "serverPath": "/home/vault/obsidian-git",
           "type": "sendreceive",
           "lastVerified": "2026-05-07",
           "verification": "idle on both peers; needBytes=0; create/modify/delete acceptance passed"
@@ -476,8 +476,8 @@
       ]
     },
     "authoringTruth": "Windows:E:\\Vaults\\Obsidian",
-    "projectorInput": "Linux:/home/vault/Obsidian/docs",
-    "publicContentAccess": "/openlist/Obsidian/docs",
+    "projectorInput": "Linux:/home/vault/obsidian-git/docs",
+    "publicContentAccess": "/openlist/obsidian-git/docs",
     "gitMirror": "content-vault working copy target; path not created as active source yet",
     "cmsPriority": [
       "TinaCMS",
@@ -497,8 +497,8 @@
     "pipeline": [
       "Obsidian local vault",
       "Syncthing",
-      "Linux /home/vault/Obsidian runtime hot mirror",
-      "OpenList /openlist/Obsidian content control plane and public identity",
+      "Linux /home/vault/obsidian-git runtime hot mirror",
+      "OpenList /openlist/obsidian-git content control plane and public identity",
       "server-side Runtime MarkdownObject projector",
       "Feed/Reader/Search/Graph projection",
       "optional Git mirror",
@@ -597,7 +597,7 @@
         "draft != true",
         "published != false",
         "visibility is public",
-        "default include all Markdown under /home/vault/Obsidian/docs unless blocked by draft/private rules"
+        "default include all Markdown under /home/vault/obsidian-git/docs unless blocked by draft/private rules"
       ],
       "route": "/posts/[slug]/",
       "feedConsumer": [
@@ -616,9 +616,9 @@
       "runtimeReaderUi": "/posts/[slug]/ is the only public article detail route. It is generated from Runtime MarkdownObject metadata and reads the matching /runtime/articles/*.json detail payload for body/html/toc.",
       "cardUiRule": "ArticleCard, homepage runtime feed, /posts/ and /posts/[slug]/ display chips only from MarkdownObject.card.chips; tags/categories remain indexing metadata, not ad hoc card labels",
       "autoSyncWatcher": "deprecated: Windows watcher/scp content sync is disabled",
-      "serverRuntimeProjector": "tools/server-runtime-content-projector.mjs runs as systemd myblog-runtime-content-projector.service on Linux, watches and scans /home/vault/Obsidian/docs, writes /srv/myblog/site/runtime/content-index.json with /openlist/Obsidian/docs public identity, and never runs Astro build/Pagefind/deploy/scp",
+      "serverRuntimeProjector": "tools/server-runtime-content-projector.mjs runs as systemd myblog-runtime-content-projector.service on Linux, watches and scans /home/vault/obsidian-git/docs, writes /srv/myblog/site/runtime/content-index.json with /openlist/obsidian-git/docs public identity, and never runs Astro build/Pagefind/deploy/scp",
       "runtimeEvents": "tools/runtime-content-sse-server.mjs runs as systemd myblog-runtime-sse.service on 127.0.0.1:4121; nginx proxies /runtime/events; it only emits content-index events when the live JSON file changes",
-      "syncOnlyRule": "Obsidian markdown edits sync as files into /home/vault/Obsidian; Linux projection updates only /srv/myblog/site/runtime/content-index.json and OpenList identity fields. Astro build, Pagefind, scp and deploy are reserved for shell code, route or static asset changes",
+      "syncOnlyRule": "Obsidian markdown edits sync as files into /home/vault/obsidian-git; Linux projection updates only /srv/myblog/site/runtime/content-index.json and OpenList identity fields. Astro build, Pagefind, scp and deploy are reserved for shell code, route or static asset changes",
       "postsPageUi": "Runtime MarkdownObject articles are the only /posts/ listing source",
       "metadataUi": "Editorial metadata line; no badge/chip controls on runtime article metadata"
     },
@@ -794,8 +794,8 @@
     "targetPipeline": [
       "Obsidian",
       "Syncthing",
-      "Linux /home/vault/Obsidian hot mirror",
-      "OpenList /openlist/Obsidian content control plane",
+      "Linux /home/vault/obsidian-git hot mirror",
+      "OpenList /openlist/obsidian-git content control plane",
       "Quartz-compatible Markdown runtime layer",
       "MyBlog Runtime API and Object Layer Glue",
       "Astro UI Shell / PWA-TWA / Android / Search / CLI / AI Agent"
@@ -878,10 +878,10 @@
         "status": "active",
         "activeMounts": [
           {
-            "mountPath": "/Obsidian",
+            "mountPath": "/obsidian-git",
             "driver": "Local via OpenList public route",
-            "root": "/home/vault/Obsidian",
-            "publicRoute": "/openlist/Obsidian",
+            "root": "/home/vault/obsidian-git",
+            "publicRoute": "/openlist/obsidian-git",
             "verified": "2026-05-08"
           },
           {
@@ -908,7 +908,7 @@
         "status": "active",
         "serverRootDisk": "/dev/vda2 40GB root filesystem",
         "hotLayer": [
-          "/home/vault/Obsidian",
+          "/home/vault/obsidian-git",
           "/srv/myblog/site",
           "/srv/myblog/site/runtime",
           "/srv/myblog/site/pagefind",
@@ -924,9 +924,9 @@
         ],
         "activeOpenListMounts": [
           {
-            "mountPath": "/Obsidian",
+            "mountPath": "/obsidian-git",
             "driver": "Local",
-            "root": "/home/vault/Obsidian",
+            "root": "/home/vault/obsidian-git",
             "role": "public content access and OpenList identity for the Linux hot mirror"
           },
           {
@@ -943,7 +943,7 @@
           }
         ],
         "adminNextPublicRoots": [
-          "/Obsidian",
+          "/obsidian-git",
           "/腾讯云COS",
           "/夸克网盘"
         ],
@@ -2396,7 +2396,6 @@
   "activeSourceRoot": "E:\\My Project\\MyBlog",
   "localSourceRootStatus": "canonical",
   "githubDeliverySurface": "https://github.com/emptyinkpot/blog main",
-  "retiredServerSourceRoot": "ubuntu@124.220.233.126:/srv/myblog/repo",
   "runtimeDatabase": {
     "status": "active",
     "type": "Tencent Cloud CynosDB Serverless MySQL",

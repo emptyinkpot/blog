@@ -17,6 +17,7 @@ validateContentInfrastructureReductionContract();
 validateStabilizationSprint();
 validateObsidianAuthorityContract();
 validateOpenListServerStorageBoundary();
+validateProjectFactsNoStaleRuntimePaths();
 validateKnowledgeOsCore();
 validateDocumentationIsNotFactsTruth();
 
@@ -513,6 +514,14 @@ function validateOpenListServerStorageBoundary() {
   }
 
   const sourceMap = project.sourceOfTruthMap ?? {};
+  if (JSON.stringify(sourceMap.serverSourceCheckout ?? null) !== JSON.stringify(project.serverSourceCheckout ?? null)) {
+    issues.push('project.json sourceOfTruthMap.serverSourceCheckout must mirror top-level serverSourceCheckout');
+  }
+
+  if (Object.hasOwn(project, 'retiredServerSourceRoot')) {
+    issues.push('project.json must not keep retiredServerSourceRoot after /srv/myblog/repo became runtime projector workspace');
+  }
+
   if (sourceMap.openListLocalMount !== project.openListLocalMount) {
     issues.push('project.json sourceOfTruthMap.openListLocalMount must mirror the active top-level OpenList local mount');
   }
@@ -542,6 +551,23 @@ function validateOpenListServerStorageBoundary() {
   if (!String(project.nginxStaticRouteRule ?? '').includes('try_files $uri $uri/index.html =404')) {
     issues.push('project.json nginxStaticRouteRule must forbid SPA-style /index.html fallback');
   }
+}
+
+function validateProjectFactsNoStaleRuntimePaths() {
+  const projectText = readText(resolvePath('project.json'));
+  const staleRuntimeFacts = [
+    '/home/vault/Obsidian',
+    '/openlist/Obsidian',
+    '"mountPath": "/Obsidian"',
+    '"retiredServerSourceRoot"',
+    'server source checkout must stay absent'
+  ];
+
+  staleRuntimeFacts.forEach((staleFact) => {
+    if (projectText.includes(staleFact)) {
+      issues.push(`project.json must not contain stale runtime fact: ${staleFact}`);
+    }
+  });
 }
 
 function validateKnowledgeOsCore() {
