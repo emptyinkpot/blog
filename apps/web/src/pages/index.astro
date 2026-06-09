@@ -22,6 +22,7 @@ import { getRelatedKnowledgeEntries } from '../lib/knowledge/relations';
 import { defineKnowledgeObject, knowledgeObjectToRelationSource, knowledgeObjectToSearchDoc } from '../lib/knowledge/objects';
 import { defaultSealDefinitions, sealDefinitionStorageKey } from '../lib/knowledge/seals';
 import {
+  getRuntimeContentIndex,
   getRuntimeArticleCard,
   getRuntimeArticles,
   getRuntimeCollectionHref,
@@ -1035,7 +1036,7 @@ const sidebarNavigation = getMyBlogSidebarNavigation(withBase);
   <script
     type="application/json"
     id="home-runtime-static-data"
-    set:html={JSON.stringify({ staticActivityItems, staticNodeCount })}
+    set:html={JSON.stringify({ staticActivityItems, staticNodeCount, runtimeContentIndexVersion: getRuntimeContentIndex().generatedAt })}
   />
 
   <div class="home-article-templates" hidden data-article-templates>
@@ -1708,7 +1709,32 @@ const sidebarNavigation = getMyBlogSidebarNavigation(withBase);
       };
 
       const runtimeArticleDetailUrl = (article) =>
-        `/runtime/${article?.detailPath || `articles/${article?.id || encodeURIComponent(article?.slug || '')}.json`}?t=${Date.now()}`;
+        `/runtime/${article?.detailPath || `articles/${article?.id || encodeURIComponent(article?.slug || '')}.json`}`;
+      const runtimeDetailCache = new Map();
+      let runtimeContentIndexVersion = homeRuntimeStatic.runtimeContentIndexVersion || '';
+
+      const normalizeRuntimeDetailUrl = (url) => {
+        if (!url) return '';
+        try {
+          const parsed = new URL(url, window.location.origin);
+          parsed.searchParams.delete('t');
+          return `${parsed.pathname}${parsed.search}`;
+        } catch {
+          return String(url).replace(/([?&])t=\d+(&?)/, '$1').replace(/[?&]$/, '');
+        }
+      };
+
+      const readRuntimeDetail = async (detailUrl, signal) => {
+        const stableUrl = normalizeRuntimeDetailUrl(detailUrl);
+        if (!stableUrl) return null;
+        const cached = runtimeDetailCache.get(stableUrl);
+        if (cached) return cached;
+        const response = await fetch(stableUrl, { cache: 'default', signal });
+        if (!response.ok) return null;
+        const detail = await response.json();
+        runtimeDetailCache.set(stableUrl, detail);
+        return detail;
+      };
 
       const updateRuntimeHomeMetrics = (articles) => {
         const runtimeCount = articles.length;
@@ -1940,6 +1966,12 @@ const sidebarNavigation = getMyBlogSidebarNavigation(withBase);
           const response = await fetch(`/runtime/content-index.json?t=${Date.now()}`, { cache: 'no-store' });
           if (!response.ok) return;
           const index = await response.json();
+          const nextVersion = index.generatedAt || '';
+          if (nextVersion && nextVersion === runtimeContentIndexVersion) return;
+          if (nextVersion && runtimeContentIndexVersion && nextVersion !== runtimeContentIndexVersion) {
+            runtimeDetailCache.clear();
+          }
+          runtimeContentIndexVersion = nextVersion || runtimeContentIndexVersion;
           const articles = Array.isArray(index.articles) ? index.articles.filter((article) => article?.projection?.feed !== false) : [];
           const collections = Array.isArray(index.collections)
             ? index.collections.filter((collection) => collection?.projections?.home !== false).slice(0, 12)
@@ -2827,12 +2859,10 @@ const sidebarNavigation = getMyBlogSidebarNavigation(withBase);
 
       const hydrateRuntimeDrawer = async (content) => {
         const body = content.querySelector('[data-runtime-detail-body]');
-        const detailUrl = body?.dataset.runtimeDetailUrl;
+        const detailUrl = normalizeRuntimeDetailUrl(body?.dataset.runtimeDetailUrl);
         if (!body || !detailUrl || body.dataset.runtimeDetailLoaded === 'true') return;
         try {
-          const response = await fetch(detailUrl, { cache: 'no-store' });
-          if (!response.ok) return;
-          const detail = await response.json();
+          const detail = await readRuntimeDetail(detailUrl);
           if (!detail?.article?.html) return;
           body.innerHTML = detail.article.html;
           body.dataset.runtimeDetailLoaded = 'true';
@@ -2880,17 +2910,7 @@ const sidebarNavigation = getMyBlogSidebarNavigation(withBase);
           body.dataset.loadState = 'loading';
           body.innerHTML = '<p>正在切换文章。</p>';
           try {
-            const response = await fetch(`${detailUrl}${detailUrl.includes('?') ? '&' : '?'}t=${Date.now()}`, {
-              cache: 'no-store',
-              signal: controller.signal
-            });
-            if (!response.ok) {
-              body.dataset.loadState = `http-${response.status}`;
-              body.innerHTML = '<p>正文加载失败，保留当前阅读会话。</p>';
-              return;
-            }
-            const text = await response.text();
-            const detail = JSON.parse(text);
+            const detail = await readRuntimeDetail(detailUrl, controller.signal);
             const article = detail?.article;
             if (!article) {
               body.dataset.loadState = 'missing-article';
