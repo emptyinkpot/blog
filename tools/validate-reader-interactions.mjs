@@ -107,9 +107,13 @@ function validateReaderInteractionStyles() {
     '.reader-code-language',
     '.reader-code-copy',
     '--docs-reader-code-panel',
-    'pre code span',
-    'figure[data-rehype-pretty-code-figure] code span',
-    'color: var(--docs-reader-code-text) !important',
+    '--docs-reader-code-keyword',
+    '--docs-reader-code-string',
+    '--docs-reader-code-function',
+    '--docs-reader-code-number',
+    '--docs-reader-code-comment',
+    '.token.keyword',
+    '.token.string',
     '.reader-skeleton',
     '@keyframes reader-skeleton-pulse',
     '.reader-toast',
@@ -123,6 +127,16 @@ function validateReaderInteractionStyles() {
       issues.push('reader code tool styles should use docs-reader variables instead of introducing a separate color truth');
     }
   }
+
+  [
+    'background: color-mix(in srgb, var(--docs-reader-note)',
+    'background: color-mix(in srgb, var(--docs-reader-tip)',
+    'background: color-mix(in srgb, var(--docs-reader-warning)',
+    'background: color-mix(in srgb, var(--docs-reader-danger)',
+    'color: var(--docs-reader-code-text) !important'
+  ].forEach((forbidden) => {
+    if (globalCss.includes(forbidden)) issues.push(`reader style must not keep flattened/decorative code or callout styling: ${forbidden}`);
+  });
 }
 
 function validateReaderLayoutContract() {
