@@ -98,7 +98,7 @@
     "json-stable-stringify-without-jsonify": "^1.0.1",
     "keyv": "^4.5.4",
     "levn": "^0.4.1",
-    "locate-path": "^6.0.0",
+    "locate-path": "^8.0.0",
     "merge2": "^1.4.1",
     "micromatch": "^4.0.8",
     "minimatch": "^10.2.5",
