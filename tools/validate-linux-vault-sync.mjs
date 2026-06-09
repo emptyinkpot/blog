@@ -25,11 +25,10 @@ echo "--- projector"
 systemctl cat myblog-runtime-content-projector.service | grep -F "MYBLOG_VAULT_ROOT=/home/vault/obsidian-git"
 systemctl cat myblog-runtime-content-projector.service | grep -F "MYBLOG_VAULT_WATCH_ROOT=/home/vault/obsidian-git"
 systemctl cat myblog-runtime-content-projector.service | grep -F "MYBLOG_RUNTIME_OPENLIST_ROOT_LABEL=/openlist/obsidian-git"
-echo "--- openlist"
-curl -fsS https://blog.tengokukk.com/openlist/obsidian-git/ >/dev/null
 echo "--- runtime identity"
 python3 - <<'PY'
 import json
+import subprocess
 from pathlib import Path
 index = Path('/srv/myblog/site/runtime/content-index.json')
 data = json.loads(index.read_text(encoding='utf-8'))
@@ -58,6 +57,14 @@ if missing_openlist:
     raise SystemExit(f'runtime article missing OpenList identity: {missing_openlist[:5]}')
 if bad_source_path:
     raise SystemExit(f'runtime article sourcePath is not Linux hot mirror: {bad_source_path[:5]}')
+first_url = str(articles[0].get('openlistUrl') or '')
+if not first_url.startswith('/openlist/obsidian-git/'):
+    raise SystemExit(f'first article has invalid OpenList URL: {first_url}')
+subprocess.run(
+    ['curl', '-fsS', f'https://blog.tengokukk.com{first_url}'],
+    stdout=subprocess.DEVNULL,
+    check=True
+)
 print(f'Runtime OpenList identity verified for {len(articles)} articles')
 PY
 `;
