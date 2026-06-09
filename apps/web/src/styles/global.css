@@ -6006,6 +6006,12 @@ body.app-mode .site-shell__glow {
   column-gap: 16px;
 }
 
+.home-feed-grid[data-home-feed-default-hidden~="book"]:not([data-show-optional-book="true"]) [data-feed-kind="book"],
+.home-feed-grid[data-home-feed-default-hidden~="music"]:not([data-show-optional-music="true"]) [data-feed-kind="music"],
+.home-feed-grid[data-home-feed-default-hidden~="visual"]:not([data-show-optional-visual="true"]) [data-feed-kind="visual"] {
+  display: none;
+}
+
 .home-feed-card {
   display: inline-block;
   width: 100%;

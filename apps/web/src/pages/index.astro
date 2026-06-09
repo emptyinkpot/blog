@@ -727,7 +727,7 @@ const sidebarNavigation = getMyBlogSidebarNavigation(withBase);
         </nav>
       </div>
 
-      <section class="home-feed-grid" aria-label="内容流" data-home-feed-grid>
+      <section class="home-feed-grid" aria-label="内容流" data-home-feed-grid data-home-feed-default-hidden="book music visual">
         <RuntimeBookFeed targetId="home-feed" client:load />
         {feedItems.map((item) =>
           item.type === 'github' && item.githubVariant === 'heatmap' ? (
@@ -3096,6 +3096,11 @@ const sidebarNavigation = getMyBlogSidebarNavigation(withBase);
       };
 
       const syncOptionalFeedButtons = () => {
+        if (homeFeedGrid) {
+          homeFeedGrid.dataset.showOptionalBook = enabledOptionalFeedKinds.has('book') ? 'true' : 'false';
+          homeFeedGrid.dataset.showOptionalMusic = enabledOptionalFeedKinds.has('music') ? 'true' : 'false';
+          homeFeedGrid.dataset.showOptionalVisual = enabledOptionalFeedKinds.has('visual') ? 'true' : 'false';
+        }
         filterButtons.forEach((button) => {
           const optionalKind = button.dataset.optionalFeedKind;
           if (!optionalKind) return;
