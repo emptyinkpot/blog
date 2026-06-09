@@ -16,6 +16,7 @@ validateReaderFeedback();
 validateTocAutoReveal();
 validateInlineScriptAwaitBoundary();
 validateReaderInteractionStyles();
+validateReaderLayoutContract();
 
 if (issues.length) {
   console.error(['Reader interaction validation failed:', ...issues.map((issue) => `- ${issue}`)].join('\n'));
@@ -114,6 +115,34 @@ function validateReaderInteractionStyles() {
       issues.push('reader code tool styles should use docs-reader variables instead of introducing a separate color truth');
     }
   }
+}
+
+function validateReaderLayoutContract() {
+  [
+    '--docs-reader-width: clamp(760px, 58vw, 840px)',
+    '--docs-reader-toc-width: clamp(168px, 16vw, 220px)',
+    '--docs-reader-gap: clamp(24px, 3vw, 44px)',
+    '--docs-reader-shell-width: calc(var(--docs-reader-width) + var(--docs-reader-gap) + var(--docs-reader-toc-width))',
+    'grid-template-columns: minmax(0, var(--docs-reader-width)) var(--docs-reader-toc-width)',
+    'justify-content: center',
+    '.home-article-toc {\n  order: 2',
+    'border-left: 1px solid var(--docs-reader-border)',
+    'max-height: calc(100dvh - 120px)',
+    '.home-article-content {\n  order: 1',
+    'min-width: 0',
+    'width: min(var(--docs-reader-width), 100%)',
+    'margin: 38px auto 0'
+  ].forEach((needle) => {
+    if (!globalCss.includes(needle)) issues.push(`reader right-TOC layout contract missing: ${needle}`);
+  });
+
+  [
+    'grid-template-columns: var(--docs-reader-toc-width) minmax(0, var(--docs-reader-width))',
+    'border-right: 1px solid var(--docs-reader-border)',
+    'calc(50% - (var(--docs-reader-toc-width) + var(--docs-reader-gap) + var(--docs-reader-width))'
+  ].forEach((forbidden) => {
+    if (globalCss.includes(forbidden)) issues.push(`reader layout must not regress to left-TOC formula: ${forbidden}`);
+  });
 }
 
 function readText(relativePath) {

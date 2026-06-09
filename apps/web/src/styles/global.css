@@ -11212,9 +11212,10 @@ body.has-home-article-drawer .home-feed-main {
   --docs-reader-tip: #1a7f37;
   --docs-reader-warning: #9a6700;
   --docs-reader-danger: #cf222e;
-  --docs-reader-width: 720px;
-  --docs-reader-toc-width: 220px;
-  --docs-reader-gap: 40px;
+  --docs-reader-width: clamp(760px, 58vw, 840px);
+  --docs-reader-toc-width: clamp(168px, 16vw, 220px);
+  --docs-reader-gap: clamp(24px, 3vw, 44px);
+  --docs-reader-shell-width: calc(var(--docs-reader-width) + var(--docs-reader-gap) + var(--docs-reader-toc-width));
   --docs-reader-font: Inter, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
   --docs-reader-mono: "JetBrains Mono", "SFMono-Regular", Consolas, monospace;
 }
@@ -11364,18 +11365,8 @@ body.has-home-article-drawer .home-feed-main {
 :root[data-theme='heritage'] .home-article-drawer:not(.home-article-drawer--book) .home-article-intro,
 :root[data-theme='heritage'] .home-article-drawer:not(.home-article-drawer--book) .reader-mini-graph,
 :root[data-theme='heritage'] .home-article-drawer:not(.home-article-drawer--book) .home-article-related {
-  width: min(var(--docs-reader-width), calc(100% - var(--docs-reader-toc-width) - var(--docs-reader-gap)));
-  margin:
-    0
-    auto
-    30px
-    max(
-      calc(var(--docs-reader-toc-width) + var(--docs-reader-gap)),
-      calc(
-        (100% - (var(--docs-reader-toc-width) + var(--docs-reader-gap) + var(--docs-reader-width))) / 2 +
-        var(--docs-reader-toc-width) + var(--docs-reader-gap)
-      )
-    );
+  width: min(var(--docs-reader-width), 100%);
+  margin: 0 auto 30px;
 }
 
 :root[data-theme='heritage'] .home-article-drawer:not(.home-article-drawer--book) .home-article-intro {
@@ -11410,17 +11401,24 @@ body.has-home-article-drawer .home-feed-main {
 }
 
 :root[data-theme='heritage'] .home-article-drawer:not(.home-article-drawer--book) .home-article-reader__grid {
-  grid-template-columns: var(--docs-reader-toc-width) minmax(0, var(--docs-reader-width));
+  width: min(var(--docs-reader-shell-width), 100%);
+  grid-template-columns: minmax(0, var(--docs-reader-width)) var(--docs-reader-toc-width);
   gap: var(--docs-reader-gap);
+  align-items: start;
+  justify-content: center;
+  margin: 0 auto;
 }
 
 :root[data-theme='heritage'] .home-article-drawer:not(.home-article-drawer--book) .home-article-toc {
+  order: 2;
   top: 24px;
   gap: 4px;
-  max-height: calc(100vh - 110px);
+  max-height: calc(100dvh - 120px);
   border: 0;
-  border-right: 1px solid var(--docs-reader-border);
-  padding: 0 16px 0 0;
+  border-left: 1px solid var(--docs-reader-border);
+  padding: 0 0 0 16px;
+  overflow: auto;
+  scrollbar-width: thin;
 }
 
 :root[data-theme='heritage'] .home-article-drawer:not(.home-article-drawer--book) .home-article-toc strong {
@@ -11464,6 +11462,8 @@ body.has-home-article-drawer .home-feed-main {
 }
 
 :root[data-theme='heritage'] .home-article-drawer:not(.home-article-drawer--book) .home-article-content {
+  order: 1;
+  min-width: 0;
   max-width: var(--docs-reader-width);
   color: var(--docs-reader-text);
   font-family: var(--docs-reader-font);
@@ -11684,14 +11684,10 @@ body.has-home-article-drawer .home-feed-main {
 }
 
 :root[data-theme='heritage'] .home-article-drawer:not(.home-article-drawer--book) .runtime-reader-nav {
-  width: min(var(--docs-reader-width), calc(100% - var(--docs-reader-toc-width) - var(--docs-reader-gap)));
+  width: min(var(--docs-reader-width), 100%);
   gap: 0;
   border-top: 1px solid var(--docs-reader-border);
-  margin:
-    38px
-    auto
-    0
-    calc(50% - (var(--docs-reader-toc-width) + var(--docs-reader-gap) + var(--docs-reader-width)) / 2 + var(--docs-reader-toc-width) + var(--docs-reader-gap));
+  margin: 38px auto 0;
   padding-top: 14px;
 }
 
@@ -11835,7 +11831,7 @@ body.has-home-article-drawer .home-feed-main {
   :root[data-theme='heritage'] .home-article-drawer:not(.home-article-drawer--book) .home-article-toc {
     position: static;
     max-height: 9.5rem;
-    border-right: 0;
+    border-left: 0;
     border-bottom: 1px solid var(--docs-reader-border);
     margin-bottom: 24px;
     padding: 0 0 12px;
