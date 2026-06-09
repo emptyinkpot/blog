@@ -8,6 +8,7 @@ const manifestPath = 'apps/web/public/manifest.webmanifest';
 const serviceWorkerPath = 'apps/web/public/sw.js';
 const assetLinksPath = 'apps/web/public/.well-known/assetlinks.json';
 const baseLayoutPath = 'apps/web/src/layouts/BaseLayout.astro';
+const homePagePath = 'apps/web/src/pages/index.astro';
 const twaContractPath = 'apps/android-shell/twa.contract.json';
 
 validateManifest();
@@ -118,6 +119,7 @@ function validateLayoutRegistration() {
 
 function validateBrandSurface() {
   const layout = readText(baseLayoutPath);
+  const homePage = readText(homePagePath);
   const favicon = readText('apps/web/public/favicon.svg');
 
   [
@@ -134,6 +136,17 @@ function validateBrandSurface() {
   ['aria-label="空瓶子"', '<rect width="64" height="64" rx="14"', 'stroke="#111827"'].forEach((needle) => {
     if (!favicon.includes(needle)) {
       issues.push(`favicon.svg brand mark is missing: ${needle}`);
+    }
+  });
+
+  [
+    '<BaseLayout title="空瓶子"',
+    'description="空瓶子的首页',
+    'data-copy-key="home.brand.name">空瓶子</span>',
+    '<h1 data-hero-title data-copy-key="home.banner.title">空瓶子</h1>'
+  ].forEach((needle) => {
+    if (!homePage.includes(needle)) {
+      issues.push(`home page brand surface is missing: ${needle}`);
     }
   });
 }

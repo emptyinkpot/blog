@@ -602,7 +602,7 @@ const homeCommands = getMyBlogHomeCommands(
 const sidebarNavigation = getMyBlogSidebarNavigation(withBase);
 ---
 
-<BaseLayout title="emptyinkpot" description="emptyinkpot 的首页，聚合文章、书架、项目、GitHub 与视频入口。" hideSiteChrome={true}>
+<BaseLayout title="空瓶子" description="空瓶子的首页，聚合文章、书架、项目、GitHub 与视频入口。" hideSiteChrome={true}>
   <div class="home-feed-shell" data-github-live-root data-github-username="emptyinkpot">
     <aside class="home-feed-rail" aria-label="系统导航与上下文状态" data-home-sidebar>
       <button class="home-sidebar-collapse" type="button" data-sidebar-collapse aria-label="折叠右侧栏" aria-expanded="true">
@@ -611,8 +611,8 @@ const sidebarNavigation = getMyBlogSidebarNavigation(withBase);
 
       <section class="home-feed-profile home-sidebar-section">
         <a class="home-feed-brand" href={withBase('/')}>
-          <img src={withBase('/images/branding/vita-atramenti-logo.png')} alt="emptyinkpot" data-image-key="home.brand.logo" />
-          <span data-sidebar-label data-copy-key="home.brand.name">emptyinkpot</span>
+          <img src={withBase('/images/branding/vita-atramenti-logo.png')} alt="空瓶子" data-image-key="home.brand.logo" />
+          <span data-sidebar-label data-copy-key="home.brand.name">空瓶子</span>
         </a>
         <img class="home-feed-avatar" src={github.profile.avatarUrl} alt={github.profile.name} data-image-key="home.profile.avatar" data-github-profile="avatar" />
         <h1 data-sidebar-label data-github-profile="name">{github.profile.name}</h1>
@@ -653,7 +653,7 @@ const sidebarNavigation = getMyBlogSidebarNavigation(withBase);
     </aside>
 
     <main class="home-feed-main" data-pagefind-body>
-      <section class="home-hero-banner" data-hero-banner aria-label="emptyinkpot hero banner">
+      <section class="home-hero-banner" data-hero-banner aria-label="空瓶子首页横幅">
         <Particles client:visible className="absolute inset-0 z-0" quantity={80} color="#6366f1" size={0.4} />
         <div class="home-hero-banner__layer home-hero-banner__layer--bg" data-hero-layer="bg"></div>
         <div class="home-hero-banner__layer home-hero-banner__layer--mid" data-hero-layer="mid"></div>
@@ -664,7 +664,7 @@ const sidebarNavigation = getMyBlogSidebarNavigation(withBase);
             <span data-hero-season-label data-hero-kicker data-copy-key="home.banner.kicker">Seasonal Field</span>
           </BlurFade>
           <BlurFade client:visible delay={0.2} direction="up">
-            <h1 data-hero-title data-copy-key="home.banner.title">EMPTYINKPOT</h1>
+            <h1 data-hero-title data-copy-key="home.banner.title">空瓶子</h1>
           </BlurFade>
           <BlurFade client:visible delay={0.3} direction="up">
             <p data-hero-subtitle data-copy-key="home.banner.subtitle">Content OS · Tangible Knowledge UI</p>
