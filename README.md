@@ -153,17 +153,15 @@ Deploy from the local source workspace by pushing `main` to GitHub. GitHub Actio
 
 ```bash
 cd "E:\My Project\MyBlog"
-npm run check:workspace
-npm run check:governance
-npm run check
+npm run facts
+npm run verify
 git push origin main
 ```
 
-Acceptance commands:
+Three-pillar command surface:
 
 ```bash
-npm run check:vault-sync
-npm run check:workspace
-npm run check:governance
-npm run check:frontend-contract
+npm run run
+npm run verify
+npm run facts
 ```

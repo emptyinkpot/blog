@@ -5,6 +5,11 @@ import { fileURLToPath } from 'node:url';
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const invokedDirectly = process.argv[1] ? path.resolve(process.argv[1]) === fileURLToPath(import.meta.url) : false;
 
+process.stdout.on('error', (error) => {
+  if (error.code === 'EPIPE') process.exit(0);
+  throw error;
+});
+
 export function readProjectFacts(rootDir = repoRoot) {
   const projectPath = path.join(rootDir, 'project.json');
   const project = JSON.parse(fs.readFileSync(projectPath, 'utf8'));

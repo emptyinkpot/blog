@@ -42,16 +42,63 @@ function validateThreePillars() {
   const packageJson = JSON.parse(readText(resolvePath('package.json')));
   const scripts = packageJson.scripts ?? {};
 
-  if (scripts.run !== 'npm run dev') {
-    issues.push('package.json scripts.run must be the canonical run entry and delegate to dev');
+  if (scripts.run !== 'npm run run:web') {
+    issues.push('package.json scripts.run must be the canonical run entry and delegate to run:web');
   }
 
-  if (scripts.verify !== 'npm run check && npm run check:vault-sync') {
-    issues.push('package.json scripts.verify must be the canonical verify entry and delegate to check plus check:vault-sync');
+  if (scripts.verify !== 'npm run verify:all') {
+    issues.push('package.json scripts.verify must be the canonical verify entry and delegate to verify:all');
   }
 
-  if (scripts.facts !== 'node tools/project-facts.mjs --print') {
-    issues.push('package.json scripts.facts must be the canonical facts entry and print project facts');
+  if (scripts.facts !== 'npm run facts:print') {
+    issues.push('package.json scripts.facts must be the canonical facts entry and delegate to facts:print');
+  }
+
+  const requiredInternalScripts = {
+    'run:web': 'npm --prefix apps/web run dev',
+    'run:projector': 'node tools/server-runtime-content-projector.mjs',
+    'verify:all': 'npm run check && npm run verify:vault-sync',
+    'verify:governance': 'node tools/validate-repo-governance.mjs',
+    'facts:print': 'node tools/project-facts.mjs --print'
+  };
+
+  Object.entries(requiredInternalScripts).forEach(([name, expectedCommand]) => {
+    if (scripts[name] !== expectedCommand) {
+      issues.push(`package.json scripts.${name} must be ${expectedCommand}`);
+    }
+  });
+
+  const legacyAliasExpectations = {
+    dev: 'npm run run:web',
+    preview: 'npm run run:preview',
+    astro: 'npm run run:astro',
+    lint: 'npm run verify:lint',
+    'check:vault-sync': 'npm run verify:vault-sync',
+    'check:governance': 'npm run verify:governance',
+    'runtime:content:server': 'npm run run:projector',
+    'runtime:content:sse': 'npm run run:sse',
+    'server:openlist-storage': 'npm run run:openlist-storage'
+  };
+
+  Object.entries(legacyAliasExpectations).forEach(([name, expectedCommand]) => {
+    if (scripts[name] !== expectedCommand) {
+      issues.push(`legacy package.json script ${name} must delegate to three-pillar internal command: ${expectedCommand}`);
+    }
+  });
+
+  Object.entries(scripts).forEach(([name, command]) => {
+    if (name.includes(':')) return;
+    if (['run', 'verify', 'facts', 'check', 'build', 'deploy', 'dev', 'preview', 'astro', 'lint'].includes(name)) return;
+    if (/^(admin|quartz|android|runtime|check|server|import|new|semantic|refresh):/.test(name)) return;
+    const commandText = String(command);
+    if (!/^npm run (run|verify|facts)(:|$)/.test(commandText)) {
+      issues.push(`top-level package.json script ${name} must delegate to run/verify/facts or be explicitly classified`);
+    }
+  });
+
+  const checkCommand = String(scripts.check || '');
+  if (!checkCommand.includes('verify:content') || !checkCommand.includes('verify:governance')) {
+    issues.push('package.json scripts.check must delegate validation steps through verify:* commands');
   }
 
   if (!fileExists('project.json')) {
@@ -353,8 +400,8 @@ function validateStabilizationSprint() {
     issues.push('project.json must expose a repeatable vaultSyncCheck command');
   }
 
-  if (!readme.includes('npm run check:vault-sync')) {
-    issues.push('README.md must document npm run check:vault-sync for Syncthing/Linux Vault acceptance');
+  if (!readme.includes('npm run verify')) {
+    issues.push('README.md must document npm run verify as the canonical verification entry');
   }
 
   if (!codex.includes('obsidian-vault') || !codex.includes(canonicalPaths.linuxVaultRoot) || !codex.includes(canonicalPaths.openListRoot)) {
