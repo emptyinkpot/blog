@@ -834,3 +834,4 @@ export const architectureCodexGlossary = [
 export function getCodexHref(slug: string) {
   return withBase(`/codex/${slug}/`);
 }
+// Runtime content path facts: obsidian-vault syncs to /home/vault/obsidian-git; OpenList content control plane is /openlist/obsidian-git; local OpenList mount is /obsidian-git.
