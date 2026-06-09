@@ -31,15 +31,7 @@ import {
 } from '../lib/runtimeContent';
 import { withBase } from '../lib/site';
 import { getMyBlogHomeCommands, getMyBlogSidebarNavigation } from '../lib/myblog/capabilities';
-import {
-  createRuntimeCommandDetail,
-  createRuntimeDrawerCloseDetail,
-  createRuntimeDrawerOpenDetail,
-  createRuntimeOverlayDetail,
-  homeLegacyRuntimeBridges,
-  homeRuntimeEvents,
-  mapLegacyReaderCommandToRuntimeIntent
-} from '../lib/runtime/home-runtime';
+import { homeLegacyRuntimeBridges, homeRuntimeEvents } from '../lib/runtime/home-runtime';
 import { RUNTIME_STORAGE_KEYS } from '../../../../packages/runtime-kernel/src/storage';
 import { BlurFade } from '../components/magicui/blur-fade';
 import { Particles } from '../components/magicui/particles';
@@ -187,6 +179,35 @@ const postItems: FeedItem[] = runtimeArticles.slice(0, 24).map((article, index) 
     drawerId: `runtime:${article.id}`,
     tags: card.chips || [],
     size: index === 0 ? 'standard' : 'compact'
+  };
+});
+
+function getRuntimeArticleHref(article: RuntimeMarkdownObject) {
+  return withBase(`/posts/${encodeURIComponent(article.slug || article.id || '')}/`);
+}
+
+function getRuntimeArticleDetailUrl(article: RuntimeMarkdownObject) {
+  return `/runtime/${article.detailPath || `articles/${article.id || encodeURIComponent(article.slug || '')}.json`}`;
+}
+
+const runtimeDrawerEntries: DrawerEntry[] = runtimeArticles.map((article) => {
+  const card = runtimeArticleCards.get(article.id) ?? getRuntimeArticleCard(article);
+  return {
+    id: `runtime:${article.id}`,
+    kind: 'post',
+    title: article.title || 'Untitled',
+    kicker: card.eyebrow || article.kind || 'MarkdownObject',
+    date: article.date ? formatDate(new Date(article.date)) : undefined,
+    href: getRuntimeArticleHref(article),
+    summary: card.subtitle || article.description || article.summary || '',
+    tags: card.chips || [],
+    runtimeArticle: article,
+    runtimeHtml: `<div data-runtime-detail-body data-runtime-detail-url="${getRuntimeArticleDetailUrl(article)}"><p>文章正文正在按需加载。</p></div>`,
+    toc: (article.toc ?? []).map((heading) => ({
+      href: `#${heading.slug}`,
+      className: `depth-${heading.depth}`,
+      text: heading.text
+    }))
   };
 });
 
@@ -491,6 +512,7 @@ const utilityDrawerEntries: DrawerEntry[] = [
 
 const drawerEntries = [
   ...collectionDrawerEntries,
+  ...runtimeDrawerEntries,
   ...articleDrawerEntries,
   ...musicDrawerEntries,
   ...githubDrawerEntries,
@@ -1310,17 +1332,53 @@ const sidebarNavigation = getMyBlogSidebarNavigation(withBase);
 
   <script
     define:vars={{
-      createRuntimeCommandDetail,
-      createRuntimeDrawerCloseDetail,
-      createRuntimeDrawerOpenDetail,
-      createRuntimeOverlayDetail,
       legacyRuntimeBridges: homeLegacyRuntimeBridges,
-      mapLegacyReaderCommandToRuntimeIntent,
       runtimeEventNames: homeRuntimeEvents,
       runtimeStorageKeys: RUNTIME_STORAGE_KEYS
     }}
   >
     (() => {
+      const runtimeSource = 'inline-runtime';
+      const createRuntimeCommandDetail = (kind, payload = {}, source = runtimeSource) => ({
+        kind,
+        source,
+        payload,
+        issuedAt: new Date().toISOString()
+      });
+      const createRuntimeOverlayDetail = (overlay, payload = {}, source = runtimeSource) => ({
+        overlay,
+        source,
+        payload,
+        issuedAt: new Date().toISOString()
+      });
+      const createRuntimeDrawerOpenDetail = (drawer, objectId, objectType = 'knowledge-object', payload = {}, source = runtimeSource) => ({
+        drawer,
+        objectId,
+        objectType,
+        source,
+        payload,
+        issuedAt: new Date().toISOString()
+      });
+      const createRuntimeDrawerCloseDetail = (drawer, source = runtimeSource) => ({
+        drawer,
+        source,
+        issuedAt: new Date().toISOString()
+      });
+      const mapLegacyReaderCommandToRuntimeIntent = (command) => {
+        if (command.type === 'openArticle' && command.articleId) {
+          return { kind: 'reader.open', payload: { objectId: command.articleId } };
+        }
+        if (command.type === 'openHighlight' && command.articleId) {
+          return { kind: 'reader.open', payload: { objectId: command.articleId, highlightId: command.highlightId } };
+        }
+        if (command.type === 'searchTag' && command.tag) {
+          return { kind: 'search.open', payload: { query: command.tag, tag: command.tag, kind: 'all' } };
+        }
+        if (command.type === 'focusGraphNode' && command.nodeId) {
+          return { kind: 'graph.focus', payload: { nodeId: command.nodeId } };
+        }
+        return null;
+      };
       const layer = document.querySelector('[data-article-layer]');
       const articleDrawer = layer?.querySelector('.home-article-drawer');
       const drawerBody = document.querySelector('[data-article-body]');
@@ -2726,13 +2784,6 @@ const sidebarNavigation = getMyBlogSidebarNavigation(withBase);
         dispatchRuntimeOverlayIntent(runtimeEventNames.overlayClose, 'search');
       };
 
-      const openArticleDrawer = (objectId, trigger = document.body, payload = {}) => {
-        dispatchRuntimeDrawerOpen('article', objectId, payload.objectType || 'knowledge-object', {
-          ...payload,
-          trigger
-        });
-      };
-
       const closeArticleDrawer = () => {
         dispatchRuntimeDrawerClose('article');
       };
@@ -2972,6 +3023,10 @@ const sidebarNavigation = getMyBlogSidebarNavigation(withBase);
           window.dispatchEvent(new CustomEvent(legacyRuntimeBridges.bookDrawerClose));
         }
         layer.querySelector('[data-article-close]')?.focus({ preventScroll: true });
+      };
+
+      const openArticleDrawer = (objectId, trigger = document.body, payload = {}) => {
+        openDrawer(objectId, trigger, { highlightId: payload.highlightId });
       };
 
       filterButtons.forEach((button) => {
