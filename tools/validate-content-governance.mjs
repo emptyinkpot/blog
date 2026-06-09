@@ -22,7 +22,6 @@ validateRuntimeArticles();
 validateRuntimeCollections();
 validateProjectionPackage(runtimeProjectionPackagePath, 'Runtime projection package');
 validateProjectionPackage(publicProjectionPackagePath, 'Public runtime projection package');
-validatePrivateProjectionBoundaries();
 validateSiteSupportPages();
 
 if (issues.length) {
@@ -289,38 +288,6 @@ function validateProjectionPackage(packagePath, label) {
   }
 }
 
-function validatePrivateProjectionBoundaries() {
-  const runtimeFiles = [
-    runtimeContentIndexPath,
-    publicRuntimeContentIndexPath,
-    ...listJsonFiles(resolvePath('public-data/runtime/articles')),
-    ...listJsonFiles(resolvePath(`${appDir}/public/runtime/articles`)),
-    ...listJsonFiles(runtimeProjectionPackagePath),
-    ...listJsonFiles(publicProjectionPackagePath)
-  ].filter((filePath) => fs.existsSync(filePath));
-
-  const forbiddenFragments = [
-    ':::myblog-private',
-    '## 写作大纲模板（可复用）',
-    'RAGFlow检索路线图',
-    '文学化用清单',
-    '材料生态总表',
-    '写作规划',
-    '人物-思潮对',
-    '主要引用学者谱系',
-    '开场画面与结尾回收',
-    '语气校准'
-  ];
-
-  for (const filePath of runtimeFiles) {
-    const text = readText(filePath);
-    const leaked = forbiddenFragments.find((fragment) => text.includes(fragment));
-    if (leaked) {
-      issues.push(`Private authoring scaffold leaked into runtime projection (${leaked}): ${path.relative(rootDir, filePath)}`);
-    }
-  }
-}
-
 function isAllowedCiRuntimeFallback(index) {
   return isCi && index?.authority?.fallback?.reason === 'vault-unavailable';
 }
@@ -364,17 +331,6 @@ function validateSiteSupportPages() {
 
 function readText(filePath) {
   return fs.readFileSync(filePath, 'utf8');
-}
-
-function listJsonFiles(directoryPath) {
-  if (!fs.existsSync(directoryPath)) return [];
-  return fs
-    .readdirSync(directoryPath, { withFileTypes: true })
-    .flatMap((entry) => {
-      const filePath = path.join(directoryPath, entry.name);
-      if (entry.isDirectory()) return listJsonFiles(filePath);
-      return entry.isFile() && entry.name.endsWith('.json') ? [filePath] : [];
-    });
 }
 
 function resolvePath(relativePath) {

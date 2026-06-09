@@ -741,35 +741,11 @@ function parseYamlish(frontmatter) {
 }
 
 function normalizeBody(body, relativePath) {
-  return stripMyblogPrivateBlocks(body)
+  return body
     .replace(/!\[\[([^\]]+)\]\]/g, (_match, target) => `<!-- Runtime embed pending migration: ${relativePath} -> ${target} -->`)
     .replace(/\[\[([^|\]]+)\|([^\]]+)\]\]/g, (_match, target, label) => `[${label}](#${slugify(target)})`)
     .replace(/\[\[([^\]]+)\]\]/g, (_match, target) => `[${target}](#${slugify(target)})`)
     .trim();
-}
-
-function stripMyblogPrivateBlocks(markdown) {
-  const lines = String(markdown || '').split(/\r?\n/);
-  const publicLines = [];
-  let privateDepth = 0;
-
-  for (const line of lines) {
-    if (/^\s*:::myblog-private\b/.test(line)) {
-      privateDepth += 1;
-      continue;
-    }
-
-    if (privateDepth > 0 && /^\s*:::\s*$/.test(line)) {
-      privateDepth -= 1;
-      continue;
-    }
-
-    if (privateDepth === 0) {
-      publicLines.push(line);
-    }
-  }
-
-  return publicLines.join('\n');
 }
 
 function getFolderTags(relativePath) {
