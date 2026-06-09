@@ -8,7 +8,7 @@ const nextConfig = {
   reactStrictMode: true,
   serverExternalPackages: ["@napi-rs/canvas", "sharp", "pdfjs-dist"],
   turbopack: {
-    root: __dirname,
+    root: path.resolve(__dirname, "../.."),
   },
 };
 
