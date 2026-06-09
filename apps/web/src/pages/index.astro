@@ -202,7 +202,7 @@ const runtimeDrawerEntries: DrawerEntry[] = runtimeArticles.map((article) => {
     summary: card.subtitle || article.description || article.summary || '',
     tags: card.chips || [],
     runtimeArticle: article,
-    runtimeHtml: `<div data-runtime-detail-body data-runtime-detail-url="${getRuntimeArticleDetailUrl(article)}"><p>文章正文正在按需加载。</p></div>`,
+    runtimeHtml: '',
     toc: (article.toc ?? []).map((heading) => ({
       href: `#${heading.slug}`,
       className: `depth-${heading.depth}`,
@@ -1043,6 +1043,7 @@ const sidebarNavigation = getMyBlogSidebarNavigation(withBase);
       const Content = entry.Content;
       const related = getRelatedEntries(entry);
       const hasArticleContent = Boolean(Content || entry.runtimeHtml);
+      const isRuntimeArticle = entry.id.startsWith('runtime:') && entry.runtimeArticle;
       const firstCollectionArticle = entry.collectionSessionArticles?.[0];
       const firstCollectionCard = firstCollectionArticle ? getRuntimeArticleCard(firstCollectionArticle) : undefined;
 
@@ -1067,7 +1068,29 @@ const sidebarNavigation = getMyBlogSidebarNavigation(withBase);
               {entry.date && <small>{entry.date}</small>}
             </header>
           )}
-          {hasArticleContent ? (
+          {isRuntimeArticle ? (
+            <div class="home-article-reader__grid">
+              <nav class="home-article-toc" aria-label="文章目录">
+                <strong>目录</strong>
+                {entry.toc?.length ? (
+                  entry.toc.map((heading) => (
+                    <a href={heading.href} class={heading.className}>
+                      {heading.text}
+                    </a>
+                  ))
+                ) : (
+                  <span>正文加载后生成</span>
+                )}
+              </nav>
+              <div
+                class="home-article-content prose-shell prose-shell--plain"
+                data-runtime-detail-body
+                data-runtime-detail-url={getRuntimeArticleDetailUrl(entry.runtimeArticle)}
+              >
+                <p>文章正文正在按需加载。</p>
+              </div>
+            </div>
+          ) : hasArticleContent ? (
             <>
               <div class="home-article-reader__grid">
                 <nav class="home-article-toc" aria-label="文章目录">
@@ -1791,28 +1814,6 @@ const sidebarNavigation = getMyBlogSidebarNavigation(withBase);
               </nav>
               <div class="home-article-content prose-shell prose-shell--plain" data-runtime-detail-body data-runtime-detail-url="${escapeHtml(runtimeArticleDetailUrl(article))}"><p>文章正文正在按需加载。</p></div>
             </div>
-            <section class="reader-mini-graph" data-reader-mini-graph data-reader-mini-article="${escapeHtml(drawerId)}" aria-label="文章知识网络">
-              <header>
-                <span>Mini Graph</span>
-                <a href="/knowledge/" data-mini-graph-open>查看知识图谱</a>
-              </header>
-              <div class="reader-mini-graph__grid">
-                <section>
-                  <strong>当前</strong>
-                  <button type="button" data-memory-drawer="${escapeHtml(drawerId)}">${escapeHtml(article.title || 'Untitled')}</button>
-                </section>
-                <section><strong>关联</strong><p>动态内容暂无强关联</p></section>
-                <section>
-                  <strong>标签</strong>
-                  ${
-                    tags.length
-                      ? tags.map((tag) => `<button type="button" data-mini-tag="${escapeHtml(tag)}">${escapeHtml(tag)}</button>`).join('')
-                      : '<p>暂无标签</p>'
-                  }
-                </section>
-                <section><strong>标记</strong><div data-mini-highlights><p>暂无本地标记</p></div></section>
-              </div>
-            </section>
           </article>
         `;
         return wrapper.firstElementChild;
