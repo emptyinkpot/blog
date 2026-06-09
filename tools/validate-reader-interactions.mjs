@@ -78,12 +78,16 @@ function validateReaderFeedback() {
 function validateTocAutoReveal() {
   [
     'let activeLink = null',
-    'activeLink.scrollIntoView({ block: \'nearest\' })',
-    'const topLimit = tocRect.top + 20',
-    'const bottomLimit = tocRect.bottom - 20'
+    'const revealPadding = 20',
+    'toc.scrollTop -= tocRect.top + revealPadding - linkRect.top',
+    'toc.scrollTop += linkRect.bottom - (tocRect.bottom - revealPadding)'
   ].forEach((needle) => {
     if (!index.includes(needle)) issues.push(`TOC auto-reveal contract missing: ${needle}`);
   });
+
+  if (index.includes('activeLink.scrollIntoView')) {
+    issues.push('TOC auto-reveal must not call activeLink.scrollIntoView because it can move the reader drawer');
+  }
 }
 
 function validateInlineScriptAwaitBoundary() {

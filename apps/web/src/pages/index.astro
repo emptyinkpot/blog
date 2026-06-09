@@ -1836,10 +1836,11 @@ const sidebarNavigation = getMyBlogSidebarNavigation(withBase);
         if (activeLink) {
           const tocRect = toc.getBoundingClientRect();
           const linkRect = activeLink.getBoundingClientRect();
-          const topLimit = tocRect.top + 20;
-          const bottomLimit = tocRect.bottom - 20;
-          if (linkRect.top < topLimit || linkRect.bottom > bottomLimit) {
-            activeLink.scrollIntoView({ block: 'nearest' });
+          const revealPadding = 20;
+          if (linkRect.top < tocRect.top + revealPadding) {
+            toc.scrollTop -= tocRect.top + revealPadding - linkRect.top;
+          } else if (linkRect.bottom > tocRect.bottom - revealPadding) {
+            toc.scrollTop += linkRect.bottom - (tocRect.bottom - revealPadding);
           }
         }
       };
