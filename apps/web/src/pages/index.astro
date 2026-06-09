@@ -712,10 +712,10 @@ const sidebarNavigation = getMyBlogSidebarNavigation(withBase);
           <button type="button" class="home-feed-tab" data-feed-filter="post" data-copy-key="home.feed.post">文章</button>
           <button type="button" class="home-feed-tab" data-feed-filter="note" data-copy-key="home.feed.note">笔记</button>
           <button type="button" class="home-feed-tab" data-feed-filter="project" data-copy-key="home.feed.project">项目工坊</button>
-          <button type="button" class="home-feed-tab" data-feed-filter="book" data-optional-feed-kind="book" data-copy-key="home.feed.book">书架</button>
-          <button type="button" class="home-feed-tab" data-feed-filter="music" data-optional-feed-kind="music" data-copy-key="home.feed.music">音乐</button>
+          <button type="button" class="home-feed-tab" data-feed-filter="book" data-optional-feed-kind="book" data-copy-key="home.feed.book">显示书架</button>
+          <button type="button" class="home-feed-tab" data-feed-filter="music" data-optional-feed-kind="music" data-copy-key="home.feed.music">显示音乐</button>
           <button type="button" class="home-feed-tab" data-feed-filter="github" data-copy-key="home.feed.github">GitHub</button>
-          <button type="button" class="home-feed-tab" data-feed-filter="visual" data-optional-feed-kind="visual">视觉素材</button>
+          <button type="button" class="home-feed-tab" data-feed-filter="visual" data-optional-feed-kind="visual">显示图片</button>
           {profileLinks.bilibiliConfigured && <button type="button" class="home-feed-tab" data-feed-filter="bilibili" data-copy-key="home.feed.bilibili">Bilibili</button>}
           <button type="button" class="home-feed-tab" data-feed-filter="update" data-copy-key="home.feed.evidence">史料素材库</button>
           <a class="home-feed-tab" href={withBase('/posts/')}>文章索引</a>
@@ -3080,24 +3080,46 @@ const sidebarNavigation = getMyBlogSidebarNavigation(withBase);
       };
 
       const defaultHiddenFeedKinds = new Set(['book', 'music', 'visual']);
+      const optionalFeedStateVersion = '2';
+      if (localStorage.getItem(`${storageKeys.homeFeedOptionalKinds}:version`) !== optionalFeedStateVersion) {
+        localStorage.removeItem(storageKeys.homeFeedOptionalKinds);
+        localStorage.setItem(`${storageKeys.homeFeedOptionalKinds}:version`, optionalFeedStateVersion);
+      }
       let enabledOptionalFeedKinds = new Set(
         readJson(storageKeys.homeFeedOptionalKinds, []).filter((kind) => defaultHiddenFeedKinds.has(kind))
       );
+
+      const optionalFeedLabels = {
+        book: '书架',
+        music: '音乐',
+        visual: '图片'
+      };
 
       const syncOptionalFeedButtons = () => {
         filterButtons.forEach((button) => {
           const optionalKind = button.dataset.optionalFeedKind;
           if (!optionalKind) return;
           const enabled = enabledOptionalFeedKinds.has(optionalKind);
+          const label = optionalFeedLabels[optionalKind] || optionalKind;
           button.classList.toggle('is-optional-enabled', enabled);
           button.setAttribute('aria-pressed', enabled ? 'true' : 'false');
-          button.title = enabled ? '点击查看这个类别' : '默认隐藏，点击后展示这个类别';
+          button.textContent = `${enabled ? '隐藏' : '显示'}${label}`;
+          button.title = enabled ? `点击后从首页全部流隐藏${label}` : `${label}默认隐藏，点击后在首页全部流显示`;
         });
       };
 
-      const setFilter = (kind) => {
+      const setFilter = (kind, options = {}) => {
         if (defaultHiddenFeedKinds.has(kind)) {
-          enabledOptionalFeedKinds.add(kind);
+          if (options.toggleOptional) {
+            if (enabledOptionalFeedKinds.has(kind)) {
+              enabledOptionalFeedKinds.delete(kind);
+              kind = 'all';
+            } else {
+              enabledOptionalFeedKinds.add(kind);
+            }
+          } else {
+            enabledOptionalFeedKinds.add(kind);
+          }
           writeJson(storageKeys.homeFeedOptionalKinds, [...enabledOptionalFeedKinds]);
         }
         syncOptionalFeedButtons();
@@ -3347,7 +3369,11 @@ const sidebarNavigation = getMyBlogSidebarNavigation(withBase);
       };
 
       filterButtons.forEach((button) => {
-        button.addEventListener('click', () => setFilter(button.dataset.feedFilter || 'all'));
+        button.addEventListener('click', () =>
+          setFilter(button.dataset.feedFilter || 'all', {
+            toggleOptional: Boolean(button.dataset.optionalFeedKind)
+          })
+        );
       });
 
       document.addEventListener('click', (event) => {
