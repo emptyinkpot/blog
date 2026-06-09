@@ -3,10 +3,12 @@ import path from 'node:path';
 import crypto from 'node:crypto';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { renderMarkdownToHtml } from '../apps/web/src/lib/markdown/pipeline.mjs';
+import { readProjectFacts } from './project-facts.mjs';
 
-const defaultVaultRoot = process.env.MYBLOG_VAULT_ROOT || (process.platform === 'win32' ? 'E:/Vaults/Obsidian' : '/home/vault/obsidian-git');
-const defaultSourceRootLabel = process.env.MYBLOG_RUNTIME_SOURCE_ROOT_LABEL || '/home/vault/obsidian-git';
-const defaultOpenListRootLabel = process.env.MYBLOG_RUNTIME_OPENLIST_ROOT_LABEL || '/openlist/obsidian-git';
+const projectFacts = readProjectFacts();
+const defaultVaultRoot = process.env.MYBLOG_VAULT_ROOT || (process.platform === 'win32' ? projectFacts.paths.windowsVaultRootSlash : projectFacts.paths.linuxVaultRoot);
+const defaultSourceRootLabel = process.env.MYBLOG_RUNTIME_SOURCE_ROOT_LABEL || projectFacts.paths.linuxVaultRoot;
+const defaultOpenListRootLabel = process.env.MYBLOG_RUNTIME_OPENLIST_ROOT_LABEL || projectFacts.paths.openListRoot;
 const sourceRootType = 'vault';
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -42,7 +44,7 @@ export async function buildRuntimeContentIndex(options = {}) {
     generatedAt,
     authority: {
       type: 'markdown-runtime-index',
-      fileTruth: process.platform === 'win32' ? 'E:\\Vaults\\Obsidian' : '/home/vault/obsidian-git',
+      fileTruth: process.platform === 'win32' ? projectFacts.paths.windowsVaultRoot : projectFacts.paths.linuxVaultRoot,
       authoringTruth: `${sourceRootLabel}`,
       publicFileAccess: `${openListRootLabel}`,
       projectionTruth: 'public-data/runtime/content-index.json'
@@ -129,7 +131,7 @@ function createEmptyRuntimeIndex() {
     generatedAt: new Date().toISOString(),
     authority: {
       type: 'markdown-runtime-index',
-      fileTruth: process.platform === 'win32' ? 'E:\\Vaults\\Obsidian' : '/home/vault/obsidian-git',
+      fileTruth: process.platform === 'win32' ? projectFacts.paths.windowsVaultRoot : projectFacts.paths.linuxVaultRoot,
       authoringTruth: defaultSourceRootLabel,
       publicFileAccess: defaultOpenListRootLabel,
       projectionTruth: 'public-data/runtime/content-index.json',

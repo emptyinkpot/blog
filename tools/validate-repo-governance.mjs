@@ -1,7 +1,10 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { readProjectFacts } from './project-facts.mjs';
 
 const rootDir = process.cwd();
+const projectFacts = readProjectFacts(rootDir);
+const canonicalPaths = projectFacts.paths;
 const issues = [];
 
 validateMigrationStatus();
@@ -327,8 +330,8 @@ function validateStabilizationSprint() {
     issues.push('README.md must document npm run check:vault-sync for Syncthing/Linux Vault acceptance');
   }
 
-  if (!codex.includes('obsidian-vault') || !codex.includes('/home/vault/obsidian-git') || !codex.includes('/openlist/obsidian-git')) {
-    issues.push('architectureCodex.ts must document the active obsidian-vault Syncthing folder, Linux hot mirror, and OpenList /openlist/obsidian-git content control plane');
+  if (!codex.includes('obsidian-vault') || !codex.includes(canonicalPaths.linuxVaultRoot) || !codex.includes(canonicalPaths.openListRoot)) {
+    issues.push(`architectureCodex.ts must document the active obsidian-vault Syncthing folder, Linux hot mirror, and OpenList ${canonicalPaths.openListRoot} content control plane`);
   }
 }
 
@@ -340,9 +343,9 @@ function validateObsidianAuthorityContract() {
   ];
 
   const requiredTerms = [
-    [/E:\\\\?Vaults\\\\?Obsidian/, 'Windows Obsidian authoring truth: E:\\Vaults\\Obsidian'],
-    [/\/home\/vault\/obsidian-git/, 'Linux runtime hot mirror: /home/vault/obsidian-git'],
-    [/\/openlist\/obsidian-git/, 'OpenList content control plane: /openlist/obsidian-git'],
+    [windowsPathMatcher(canonicalPaths.windowsVaultRoot), `Windows Obsidian authoring truth: ${canonicalPaths.windowsVaultRoot}`],
+    [textMatcher(canonicalPaths.linuxVaultRoot), `Linux runtime hot mirror: ${canonicalPaths.linuxVaultRoot}`],
+    [textMatcher(canonicalPaths.openListRoot), `OpenList content control plane: ${canonicalPaths.openListRoot}`],
     [/content control plane/, 'OpenList content control plane term']
   ];
 
@@ -362,11 +365,11 @@ function validateObsidianAuthorityContract() {
     },
     {
       pattern: /Linux \/home\/vault file truth|Linux:\/home\/vault"/,
-      message: 'Linux /home/vault must not be documented as file truth; use /home/vault/obsidian-git hot mirror'
+      message: `Linux /home/vault must not be documented as file truth; use ${canonicalPaths.linuxVaultRoot} hot mirror`
     },
     {
       pattern: /\/home\/vault\/image/,
-      message: 'Vault image mirror must live under /home/vault/obsidian-git/image'
+      message: `Vault image mirror must live under ${canonicalPaths.linuxVaultRoot}/image`
     },
     {
       pattern: /\/夸克网盘\/obsidian\/data\/docs.*真源|真源.*\/夸克网盘\/obsidian\/data/,
@@ -396,7 +399,7 @@ function validateOpenListServerStorageBoundary() {
   ];
 
   const requiredTerms = [
-    [/\/obsidian-git/, 'OpenList local /obsidian-git mount'],
+    [textMatcher(canonicalPaths.openListMountPath), `OpenList local ${canonicalPaths.openListMountPath} mount`],
     [/\/腾讯云COS/, 'Tencent COS OpenList cold/blob mount'],
     [/\/夸克网盘/, 'Quark OpenList cold/legacy mount'],
     [/server:openlist-storage/, 'server OpenList storage maintenance command'],
@@ -422,12 +425,13 @@ function validateOpenListServerStorageBoundary() {
     issues.push('package.json must expose server:openlist-storage');
   }
 
-  if (project.openListLocalMount !== 'OpenList:/obsidian-git -> Linux:/home/vault/obsidian-git') {
-    issues.push('project.json openListLocalMount must be OpenList:/obsidian-git -> Linux:/home/vault/obsidian-git');
+  const expectedOpenListLocalMount = `OpenList:${canonicalPaths.openListMountPath} -> Linux:${canonicalPaths.openListMountTarget}`;
+  if (project.openListLocalMount !== expectedOpenListLocalMount) {
+    issues.push(`project.json openListLocalMount must be ${expectedOpenListLocalMount}`);
   }
 
   const publicRoots = project.openListPublicRoots ?? [];
-  ['/obsidian-git', '/腾讯云COS', '/夸克网盘'].forEach((root) => {
+  [canonicalPaths.openListMountPath, '/腾讯云COS', '/夸克网盘'].forEach((root) => {
     if (!publicRoots.includes(root)) {
       issues.push(`project.json openListPublicRoots must include ${root}`);
     }
@@ -447,7 +451,7 @@ function validateOpenListServerStorageBoundary() {
   }
 
   const sourceRoots = sourceMap.openListPublicRoots ?? [];
-  ['/obsidian-git', '/腾讯云COS', '/夸克网盘'].forEach((root) => {
+  [canonicalPaths.openListMountPath, '/腾讯云COS', '/夸克网盘'].forEach((root) => {
     if (!sourceRoots.includes(root)) {
       issues.push(`project.json sourceOfTruthMap.openListPublicRoots must include ${root}`);
     }
@@ -461,8 +465,9 @@ function validateOpenListServerStorageBoundary() {
     issues.push('project.json sourceOfTruthMap.serverStorageBoundary.coldLayerRule must forbid treating OpenList as an ext4/system disk replacement');
   }
 
-  if (!readme.includes('OpenList 本地挂载：`/obsidian-git -> /home/vault/obsidian-git`')) {
-    issues.push('README.md quick-start must document the active /obsidian-git OpenList local mount');
+  const readmeMountText = `OpenList 本地挂载：\`${canonicalPaths.openListMountPath} -> ${canonicalPaths.openListMountTarget}\``;
+  if (!readme.includes(readmeMountText)) {
+    issues.push(`README.md quick-start must document the active ${canonicalPaths.openListMountPath} OpenList local mount`);
   }
 
   if (!readme.includes('try_files $uri $uri/index.html =404')) {
@@ -498,8 +503,8 @@ function validateKnowledgeOsCore() {
   if (JSON.stringify(topology) !== JSON.stringify(expected)) {
     issues.push('project.json knowledgeOsCore.topology must be Vault -> Projection -> Web Runtime -> State Services');
   }
-  if (project.knowledgeOsCore?.vault?.root !== 'Windows:E:\\Vaults\\Obsidian') {
-    issues.push('project.json knowledgeOsCore.vault.root must be Windows:E:\\Vaults\\Obsidian');
+  if (project.knowledgeOsCore?.vault?.root !== `Windows:${canonicalPaths.windowsVaultRoot}`) {
+    issues.push(`project.json knowledgeOsCore.vault.root must be Windows:${canonicalPaths.windowsVaultRoot}`);
   }
   if (project.knowledgeOsCore?.projection?.activeArticleProjection !== 'public-data/runtime/content-index.json') {
     issues.push('project.json knowledgeOsCore.projection.activeArticleProjection must be public-data/runtime/content-index.json');
@@ -519,4 +524,22 @@ function fileExists(relativePath) {
 
 function resolvePath(relativePath) {
   return path.resolve(rootDir, relativePath);
+}
+
+function textMatcher(value) {
+  return {
+    test(source) {
+      return String(source).includes(value);
+    }
+  };
+}
+
+function windowsPathMatcher(value) {
+  const escapedJsonPath = value.replaceAll('\\', '\\\\');
+  return {
+    test(source) {
+      const text = String(source);
+      return text.includes(value) || text.includes(escapedJsonPath);
+    }
+  };
 }

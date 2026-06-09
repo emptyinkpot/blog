@@ -1,7 +1,10 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { readProjectFacts } from './project-facts.mjs';
 
 const rootDir = process.cwd();
+const projectFacts = readProjectFacts(rootDir);
+const openListRoot = ensureTrailingSlash(projectFacts.paths.openListRoot);
 const appDir = 'apps/web';
 const runtimeContentIndexPath = resolvePath('public-data/runtime/content-index.json');
 const publicRuntimeContentIndexPath = resolvePath(`${appDir}/public/runtime/content-index.json`);
@@ -99,13 +102,13 @@ function validateRuntimeArticles() {
 
     if (!article?.openlistPath) {
       issues.push(`Runtime article is missing openlistPath: ${label}`);
-    } else if (!String(article.openlistPath).startsWith('/openlist/obsidian-git/')) {
+    } else if (!String(article.openlistPath).startsWith(openListRoot)) {
       issues.push(`Runtime article openlistPath must use the public OpenList content bus: ${label}`);
     }
 
     if (!article?.openlistUrl) {
       issues.push(`Runtime article is missing openlistUrl: ${label}`);
-    } else if (!String(article.openlistUrl).startsWith('/openlist/obsidian-git/')) {
+    } else if (!String(article.openlistUrl).startsWith(openListRoot)) {
       issues.push(`Runtime article openlistUrl must use the public OpenList content bus: ${label}`);
     }
 
@@ -332,6 +335,10 @@ function readText(filePath) {
 
 function resolvePath(relativePath) {
   return path.resolve(rootDir, relativePath);
+}
+
+function ensureTrailingSlash(value) {
+  return String(value || '').endsWith('/') ? String(value) : `${value}/`;
 }
 
 function recordUnique(ownerMap, value, message) {
