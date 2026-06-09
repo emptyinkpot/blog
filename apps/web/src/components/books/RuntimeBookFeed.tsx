@@ -25,7 +25,6 @@ type SearchDoc = {
 
 export default function RuntimeBookFeed({ targetId }: Props) {
   const [books, setBooks] = useState<BookItem[]>([]);
-  const [status, setStatus] = useState('正在同步 OpenList 书籍...');
 
   useEffect(() => {
     let cancelled = false;
@@ -33,7 +32,6 @@ export default function RuntimeBookFeed({ targetId }: Props) {
       .then((manifest) => {
         if (cancelled) return;
         setBooks(manifest.books);
-        setStatus(`books-index：${manifest.books.length} 本`);
         window.dispatchEvent(
           new CustomEvent('emptyinkpot:runtime-books-ready', {
             detail: {
@@ -46,7 +44,6 @@ export default function RuntimeBookFeed({ targetId }: Props) {
       .catch((error: Error) => {
         if (cancelled) return;
         setBooks([]);
-        setStatus(`books-index 暂不可用：${error.message}`);
       });
 
     return () => {
@@ -56,19 +53,10 @@ export default function RuntimeBookFeed({ targetId }: Props) {
 
   return (
     <>
-      <article className="home-feed-card home-feed-card--compact runtime-book-status" data-runtime-book-feed={targetId} data-feed-card data-feed-kind="book">
-        <div className="bookmark bookmark--book">
-          <span>book</span>
-        </div>
-        <div className="home-feed-card__body">
-          <span>Books</span>
-          <h2>OpenList 书架</h2>
-          <p>{status}</p>
-        </div>
-      </article>
-        {books.map((book) => (
-          <RuntimeBookCard book={book} key={book.id} />
-        ))}
+      <span hidden data-runtime-book-feed={targetId} />
+      {books.map((book) => (
+        <RuntimeBookCard book={book} key={book.id} />
+      ))}
       <section className="runtime-book-templates" hidden>
         {books.map((book) => (
           <RuntimeBookTemplate book={book} key={book.id} />

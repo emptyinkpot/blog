@@ -304,21 +304,6 @@ const bilibiliItems: FeedItem[] = profileLinks.bilibiliConfigured
     ]
   : [];
 
-const updateItems: FeedItem[] = [
-  {
-    id: 'update-evidence-library',
-    type: 'update',
-    title: '史料素材库已经成为独立板块',
-    summary: '用于沉淀 OpenList、Remotion、Evidence Resolver 和素材标注的公开说明入口。',
-    kicker: 'Update',
-    meta: 'evidence-library',
-    href: withBase('/evidence-library/'),
-    drawerId: 'update:evidence-library',
-    tags: ['evidence', 'remotion'],
-    size: 'standard'
-  }
-];
-
 const visualFeedItems: FeedItem[] = visualCollections.map((collection, index) => ({
   id: `visual:${collection.id}`,
   type: 'visual',
@@ -357,11 +342,9 @@ const feedItems = [
   ...noteItems.slice(0, 4),
   ...visualFeedItems.slice(0, 4),
   ...musicFeedItems.slice(0, 3),
-  ...githubChartItems,
   ...githubItems.slice(0, 4),
   ...projectItems.slice(0, 3),
-  ...bilibiliItems,
-  ...updateItems
+  ...bilibiliItems
 ];
 
 const musicDrawerEntries: DrawerEntry[] = musicItems.map((item) => ({
@@ -499,16 +482,7 @@ const utilityDrawerEntries: DrawerEntry[] = [
           tags: ['configured']
         }
       ]
-    : []),
-  {
-    id: 'update:evidence-library',
-    kind: 'update',
-    title: '史料素材库已经成为独立板块',
-    kicker: 'Update',
-    href: withBase('/evidence-library/'),
-    summary: '用于沉淀 OpenList、Remotion、Evidence Resolver 和素材标注的公开说明入口。',
-    tags: ['evidence', 'remotion']
-  }
+    : [])
 ];
 
 const drawerEntries = [
@@ -579,7 +553,6 @@ const staticNodeCount = knowledgeDocs.length;
 const staticActivityItems = [
   latestProject && `项目工坊：${latestProject.data.title} / ${latestProject.data.progress}%`,
   latestRepo && `GitHub：${latestRepo.name} 更新于 ${formatDate(new Date(latestRepo.updatedAt))}`,
-  '书架：OpenList runtime canonical',
   latestMusic && `音乐：${latestMusic.title}`
 ].filter(Boolean) as string[];
 const activityItems = [
