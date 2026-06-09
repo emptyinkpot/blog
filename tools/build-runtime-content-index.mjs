@@ -4,9 +4,9 @@ import crypto from 'node:crypto';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { renderMarkdownToHtml } from '../apps/web/src/lib/markdown/pipeline.mjs';
 
-const defaultVaultRoot = process.env.MYBLOG_VAULT_ROOT || (process.platform === 'win32' ? 'E:/Vaults/Obsidian/docs' : '/home/vault/Obsidian/docs');
-const defaultSourceRootLabel = process.env.MYBLOG_RUNTIME_SOURCE_ROOT_LABEL || '/home/vault/Obsidian/docs';
-const defaultOpenListRootLabel = process.env.MYBLOG_RUNTIME_OPENLIST_ROOT_LABEL || '/openlist/Obsidian/docs';
+const defaultVaultRoot = process.env.MYBLOG_VAULT_ROOT || (process.platform === 'win32' ? 'E:/Vaults/obsidian-git' : '/home/vault/obsidian-git');
+const defaultSourceRootLabel = process.env.MYBLOG_RUNTIME_SOURCE_ROOT_LABEL || '/home/vault/obsidian-git';
+const defaultOpenListRootLabel = process.env.MYBLOG_RUNTIME_OPENLIST_ROOT_LABEL || '/openlist/obsidian-git';
 const sourceRootType = 'vault';
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -42,7 +42,7 @@ export async function buildRuntimeContentIndex(options = {}) {
     generatedAt,
     authority: {
       type: 'markdown-runtime-index',
-      fileTruth: 'E:\\Vaults\\Obsidian',
+      fileTruth: process.platform === 'win32' ? 'E:\\Vaults\\obsidian-git' : '/home/vault/obsidian-git',
       authoringTruth: `${sourceRootLabel}`,
       publicFileAccess: `${openListRootLabel}`,
       projectionTruth: 'public-data/runtime/content-index.json'
@@ -129,7 +129,7 @@ function createEmptyRuntimeIndex() {
     generatedAt: new Date().toISOString(),
     authority: {
       type: 'markdown-runtime-index',
-      fileTruth: 'E:\\Vaults\\Obsidian',
+      fileTruth: process.platform === 'win32' ? 'E:\\Vaults\\obsidian-git' : '/home/vault/obsidian-git',
       authoringTruth: defaultSourceRootLabel,
       publicFileAccess: defaultOpenListRootLabel,
       projectionTruth: 'public-data/runtime/content-index.json',
@@ -273,9 +273,9 @@ async function toRuntimeArticle(
       articleId: article.id,
       sourceProvider: 'obsidian-vault',
       relativePath,
-      sourcePath: `docs/${relativePath}`,
+      sourcePath: relativePath,
       runtimeSourcePath: sourcePath,
-      sourceUri: `obsidian://vault/Obsidian/docs/${relativePath}`,
+      sourceUri: `obsidian://vault/obsidian-git/${relativePath}`,
       openlistPath,
       openlistUrl,
       sha256: hash(source),

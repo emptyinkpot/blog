@@ -1,15 +1,8 @@
 import { spawnSync } from 'node:child_process';
-import fs from 'node:fs';
-import path from 'node:path';
-
-const localVaultRoot = process.env.MYBLOG_LOCAL_VAULT_ROOT || 'E:\\Vaults\\Obsidian';
 const remote = process.env.MYBLOG_VAULT_REMOTE || 'ubuntu@124.220.233.126';
-const syncthingConfig = path.join(process.env.LOCALAPPDATA || '', 'Syncthing', 'config.xml');
 
 const failures = [];
 
-checkLocalVault();
-checkLocalSyncthingConfig();
 checkRemote();
 
 if (failures.length) {
@@ -19,52 +12,21 @@ if (failures.length) {
 
 console.log('Linux Vault sync validation passed');
 
-function checkLocalVault() {
-  const required = [localVaultRoot, path.join(localVaultRoot, 'docs'), path.join(localVaultRoot, 'image'), path.join(localVaultRoot, '.obsidian')];
-  required.forEach((target) => {
-    if (!fs.existsSync(target) || !fs.statSync(target).isDirectory()) {
-      failures.push(`Local Vault folder missing: ${target}`);
-    }
-  });
-}
-
-function checkLocalSyncthingConfig() {
-  if (!fs.existsSync(syncthingConfig)) {
-    failures.push(`Local Syncthing config missing: ${syncthingConfig}`);
-    return;
-  }
-
-  const source = fs.readFileSync(syncthingConfig, 'utf8');
-  [
-    ['obsidian-vault', localVaultRoot]
-  ].forEach(([folderId, folderPath]) => {
-    if (!source.includes(`id="${folderId}"`)) {
-      failures.push(`Local Syncthing folder id missing: ${folderId}`);
-    }
-    if (!source.includes(folderPath)) {
-      failures.push(`Local Syncthing folder path missing: ${folderPath}`);
-    }
-  });
-}
-
 function checkRemote() {
   const script = String.raw`
 set -e
 echo "--- services"
-systemctl is-active syncthing@ubuntu.service
 systemctl is-active myblog-runtime-content-projector.service
 echo "--- paths"
-test -d /home/vault/Obsidian
-test -d /home/vault/Obsidian/docs
-test -d /home/vault/Obsidian/image
-test -d /home/vault/Obsidian/.obsidian
-test -d /home/vault/Obsidian/.stfolder
+test -d /home/vault/obsidian-git
+test -d /home/vault/obsidian-git/.git
+git -C /home/vault/obsidian-git status --short --branch
 echo "--- projector"
-systemctl cat myblog-runtime-content-projector.service | grep -F "MYBLOG_VAULT_ROOT=/home/vault/Obsidian/docs"
-systemctl cat myblog-runtime-content-projector.service | grep -F "MYBLOG_VAULT_WATCH_ROOT=/home/vault/Obsidian/docs"
-systemctl cat myblog-runtime-content-projector.service | grep -F "MYBLOG_RUNTIME_OPENLIST_ROOT_LABEL=/openlist/Obsidian/docs"
+systemctl cat myblog-runtime-content-projector.service | grep -F "MYBLOG_VAULT_ROOT=/home/vault/obsidian-git"
+systemctl cat myblog-runtime-content-projector.service | grep -F "MYBLOG_VAULT_WATCH_ROOT=/home/vault/obsidian-git"
+systemctl cat myblog-runtime-content-projector.service | grep -F "MYBLOG_RUNTIME_OPENLIST_ROOT_LABEL=/openlist/obsidian-git"
 echo "--- openlist"
-curl -fsS https://blog.tengokukk.com/openlist/Obsidian/ >/dev/null
+curl -fsS https://blog.tengokukk.com/openlist/obsidian-git/ >/dev/null
 echo "--- runtime identity"
 python3 - <<'PY'
 import json
@@ -82,13 +44,13 @@ bad_source = [
 missing_openlist = [
     item.get('slug')
     for item in articles
-    if not str(item.get('openlistPath') or '').startswith('/openlist/Obsidian/docs/')
-    or not str(item.get('openlistUrl') or '').startswith('/openlist/Obsidian/docs/')
+    if not str(item.get('openlistPath') or '').startswith('/openlist/obsidian-git/')
+    or not str(item.get('openlistUrl') or '').startswith('/openlist/obsidian-git/')
 ]
 bad_source_path = [
     item.get('slug')
     for item in articles
-    if not str(item.get('sourcePath') or '').startswith('/home/vault/Obsidian/docs/')
+    if not str(item.get('sourcePath') or '').startswith('/home/vault/obsidian-git/')
 ]
 if bad_source:
     raise SystemExit(f'runtime article source leaks /home/vault: {bad_source[:5]}')

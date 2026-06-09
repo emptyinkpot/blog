@@ -24,11 +24,11 @@
     "buildOutputRoot": "public"
   },
   "contentTruth": {
-    "authoringTruthRoot": "Windows:E:\\Vaults\\Obsidian",
-    "serverHotMirrorRoot": "Linux:/home/vault/Obsidian",
-    "publicContentAccessRoot": "/openlist/Obsidian",
-    "defaultDocsRoot": "E:/Vaults/Obsidian/docs",
-    "linuxDocsRoot": "/home/vault/Obsidian/docs"
+    "authoringTruthRoot": "Windows:E:\\Vaults\\obsidian-git",
+    "serverHotMirrorRoot": "Linux:/home/vault/obsidian-git",
+    "publicContentAccessRoot": "/openlist/obsidian-git",
+    "defaultDocsRoot": "E:/Vaults/obsidian-git",
+    "linuxDocsRoot": "/home/vault/obsidian-git"
   },
   "commands": {
     "sync": "npm run quartz:sync",

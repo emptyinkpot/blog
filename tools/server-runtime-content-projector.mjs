@@ -7,11 +7,11 @@ import { buildRuntimeContentIndex } from './build-runtime-content-index.mjs';
 import { projectObsidianMarkdown } from '../apps/admin-next/lib/database-gateway-client.mjs';
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const vaultRoot = path.resolve(process.env.MYBLOG_VAULT_ROOT || '/home/vault/Obsidian/docs');
+const vaultRoot = path.resolve(process.env.MYBLOG_VAULT_ROOT || '/home/vault/obsidian-git');
 const watchRoot = path.resolve(process.env.MYBLOG_VAULT_WATCH_ROOT || vaultRoot);
 const runtimeIndexPath = path.resolve(process.env.MYBLOG_RUNTIME_INDEX_PATH || '/srv/myblog/site/runtime/content-index.json');
-const sourceRootLabel = process.env.MYBLOG_RUNTIME_SOURCE_ROOT_LABEL || '/home/vault/Obsidian/docs';
-const openListRootLabel = process.env.MYBLOG_RUNTIME_OPENLIST_ROOT_LABEL || '/openlist/Obsidian/docs';
+const sourceRootLabel = process.env.MYBLOG_RUNTIME_SOURCE_ROOT_LABEL || '/home/vault/obsidian-git';
+const openListRootLabel = process.env.MYBLOG_RUNTIME_OPENLIST_ROOT_LABEL || '/openlist/obsidian-git';
 const debounceMs = Number(process.env.MYBLOG_RUNTIME_PROJECTOR_DEBOUNCE_MS || 3000);
 const databaseProjectionEnabled = process.env.MYBLOG_DATABASE_CANONICAL_PROJECTION === '1';
 readRequiredEnvWhenEnabled('MYBLOG_DATABASE_GATEWAY_URL');
