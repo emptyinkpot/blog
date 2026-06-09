@@ -5966,6 +5966,33 @@ body.app-mode .site-shell__glow {
   color: #17120d;
 }
 
+.home-feed-tab[data-optional-feed-kind] {
+  position: relative;
+  padding-right: 20px;
+  color: #8a8178;
+}
+
+.home-feed-tab[data-optional-feed-kind]::after {
+  content: "";
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 5px;
+  height: 5px;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  opacity: 0.55;
+}
+
+.home-feed-tab[data-optional-feed-kind].is-optional-enabled {
+  color: #3f342e;
+}
+
+.home-feed-tab[data-optional-feed-kind].is-optional-enabled::after {
+  background: currentColor;
+  opacity: 0.85;
+}
+
 .home-feed-tab--openlist {
   color: var(--heritage-green, #2f5d50);
 }

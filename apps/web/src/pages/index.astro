@@ -712,10 +712,10 @@ const sidebarNavigation = getMyBlogSidebarNavigation(withBase);
           <button type="button" class="home-feed-tab" data-feed-filter="post" data-copy-key="home.feed.post">文章</button>
           <button type="button" class="home-feed-tab" data-feed-filter="note" data-copy-key="home.feed.note">笔记</button>
           <button type="button" class="home-feed-tab" data-feed-filter="project" data-copy-key="home.feed.project">项目工坊</button>
-          <button type="button" class="home-feed-tab" data-feed-filter="book" data-copy-key="home.feed.book">书架</button>
-          <button type="button" class="home-feed-tab" data-feed-filter="music" data-copy-key="home.feed.music">音乐</button>
+          <button type="button" class="home-feed-tab" data-feed-filter="book" data-optional-feed-kind="book" data-copy-key="home.feed.book">书架</button>
+          <button type="button" class="home-feed-tab" data-feed-filter="music" data-optional-feed-kind="music" data-copy-key="home.feed.music">音乐</button>
           <button type="button" class="home-feed-tab" data-feed-filter="github" data-copy-key="home.feed.github">GitHub</button>
-          <button type="button" class="home-feed-tab" data-feed-filter="visual">视觉素材</button>
+          <button type="button" class="home-feed-tab" data-feed-filter="visual" data-optional-feed-kind="visual">视觉素材</button>
           {profileLinks.bilibiliConfigured && <button type="button" class="home-feed-tab" data-feed-filter="bilibili" data-copy-key="home.feed.bilibili">Bilibili</button>}
           <button type="button" class="home-feed-tab" data-feed-filter="update" data-copy-key="home.feed.evidence">史料素材库</button>
           <a class="home-feed-tab" href={withBase('/posts/')}>文章索引</a>
@@ -1470,7 +1470,8 @@ const sidebarNavigation = getMyBlogSidebarNavigation(withBase);
         stickers: runtimeStorageKeys.stickers,
         sealDefinitions: sealConfig.key || runtimeStorageKeys.sealDefinitions,
         readerTheme: runtimeStorageKeys.readerTheme,
-        sidebarCollapsed: runtimeStorageKeys.homeSidebarCollapsed
+        sidebarCollapsed: runtimeStorageKeys.homeSidebarCollapsed,
+        homeFeedOptionalKinds: 'emptyinkpot:home-feed-optional-kinds'
       };
       const defaultSealDefinitions = Array.isArray(sealConfig.definitions) ? sealConfig.definitions : [];
       const loadSealDefinitions = () => {
@@ -3078,10 +3079,33 @@ const sidebarNavigation = getMyBlogSidebarNavigation(withBase);
         dispatchRuntimeDrawerClose('article');
       };
 
+      const defaultHiddenFeedKinds = new Set(['book', 'music', 'visual']);
+      let enabledOptionalFeedKinds = new Set(
+        readJson(storageKeys.homeFeedOptionalKinds, []).filter((kind) => defaultHiddenFeedKinds.has(kind))
+      );
+
+      const syncOptionalFeedButtons = () => {
+        filterButtons.forEach((button) => {
+          const optionalKind = button.dataset.optionalFeedKind;
+          if (!optionalKind) return;
+          const enabled = enabledOptionalFeedKinds.has(optionalKind);
+          button.classList.toggle('is-optional-enabled', enabled);
+          button.setAttribute('aria-pressed', enabled ? 'true' : 'false');
+          button.title = enabled ? '点击查看这个类别' : '默认隐藏，点击后展示这个类别';
+        });
+      };
+
       const setFilter = (kind) => {
+        if (defaultHiddenFeedKinds.has(kind)) {
+          enabledOptionalFeedKinds.add(kind);
+          writeJson(storageKeys.homeFeedOptionalKinds, [...enabledOptionalFeedKinds]);
+        }
+        syncOptionalFeedButtons();
         filterButtons.forEach((button) => button.classList.toggle('is-active', button.dataset.feedFilter === kind));
         getCards().forEach((card) => {
-          const visible = kind === 'all' || card.dataset.feedKind === kind;
+          const feedKind = card.dataset.feedKind || '';
+          const hiddenByDefault = defaultHiddenFeedKinds.has(feedKind) && !enabledOptionalFeedKinds.has(feedKind);
+          const visible = kind === 'all' ? !hiddenByDefault : feedKind === kind;
           card.hidden = !visible;
         });
         activeIndex = 0;
@@ -3340,8 +3364,10 @@ const sidebarNavigation = getMyBlogSidebarNavigation(withBase);
         searchDocs = [...searchDocs.filter((doc) => doc.type !== 'book'), ...docs];
         renderSearch();
         renderSeals();
+        setFilter(document.querySelector('.home-feed-tab.is-active')?.dataset.feedFilter || 'all');
       });
 
+      setFilter('all');
       syncRuntimeHomepageFeed();
       let runtimeFeedEventSource = null;
       const connectRuntimeFeedEvents = () => {
