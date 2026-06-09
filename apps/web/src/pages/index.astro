@@ -1822,12 +1822,26 @@ const sidebarNavigation = getMyBlogSidebarNavigation(withBase);
             break;
           }
         }
+        let activeLink = null;
         links.forEach((link) => {
           const isActive = link.getAttribute('href') === `#${active.id}`;
           link.classList.toggle('is-active', isActive);
-          if (isActive) link.setAttribute('aria-current', 'true');
-          else link.removeAttribute('aria-current');
+          if (isActive) {
+            activeLink = link;
+            link.setAttribute('aria-current', 'true');
+          } else {
+            link.removeAttribute('aria-current');
+          }
         });
+        if (activeLink) {
+          const tocRect = toc.getBoundingClientRect();
+          const linkRect = activeLink.getBoundingClientRect();
+          const topLimit = tocRect.top + 20;
+          const bottomLimit = tocRect.bottom - 20;
+          if (linkRect.top < topLimit || linkRect.bottom > bottomLimit) {
+            activeLink.scrollIntoView({ block: 'nearest' });
+          }
+        }
       };
 
       const scrollDrawerToHash = (hash) => {
@@ -1877,6 +1891,85 @@ const sidebarNavigation = getMyBlogSidebarNavigation(withBase);
             return link;
           })
         );
+      };
+
+      const getReaderCodeLanguage = (block) => {
+        const code = block.querySelector('code');
+        const source = [
+          block.dataset.language,
+          block.querySelector('[data-language]')?.dataset.language,
+          code?.dataset.language,
+          [...(code?.classList || [])].find((name) => name.startsWith('language-'))?.replace('language-', ''),
+          [...(block.querySelector('pre')?.classList || [])].find((name) => name.startsWith('language-'))?.replace('language-', '')
+        ].find(Boolean);
+        return (source || 'code').replace(/[_-]+/g, ' ').trim();
+      };
+
+      const createReaderCodeToolbar = (language) => {
+        const toolbar = document.createElement('div');
+        toolbar.className = 'reader-code-tools';
+        const label = document.createElement('span');
+        label.className = 'reader-code-language';
+        label.textContent = language || 'code';
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'reader-code-copy';
+        button.dataset.readerCodeCopy = 'true';
+        button.textContent = '复制';
+        toolbar.append(label, button);
+        return toolbar;
+      };
+
+      const enhanceReaderCodeBlocks = (root) => {
+        if (!root) return;
+        root.querySelectorAll('figure[data-rehype-pretty-code-figure]').forEach((figure) => {
+          if (figure.dataset.readerCodeEnhanced === 'true' || !figure.querySelector('pre')) return;
+          figure.dataset.readerCodeEnhanced = 'true';
+          figure.prepend(createReaderCodeToolbar(getReaderCodeLanguage(figure)));
+        });
+        root.querySelectorAll('pre').forEach((pre) => {
+          if (pre.closest('figure[data-rehype-pretty-code-figure], [data-reader-code-block]')) return;
+          const wrapper = document.createElement('figure');
+          wrapper.dataset.readerCodeBlock = 'true';
+          wrapper.dataset.readerCodeEnhanced = 'true';
+          wrapper.className = 'reader-code-block';
+          pre.before(wrapper);
+          wrapper.append(createReaderCodeToolbar(getReaderCodeLanguage(pre)), pre);
+        });
+      };
+
+      let readerToastTimer = 0;
+      const showReaderToast = (message) => {
+        if (!message) return;
+        let toast = document.querySelector('[data-reader-toast]');
+        if (!toast) {
+          toast = document.createElement('div');
+          toast.className = 'reader-toast';
+          toast.dataset.readerToast = 'true';
+          toast.setAttribute('role', 'status');
+          toast.setAttribute('aria-live', 'polite');
+          document.body.append(toast);
+        }
+        toast.textContent = message;
+        toast.classList.add('is-visible');
+        window.clearTimeout(readerToastTimer);
+        readerToastTimer = window.setTimeout(() => {
+          toast.classList.remove('is-visible');
+        }, 1800);
+      };
+
+      const renderRuntimeDetailSkeleton = (body) => {
+        if (!body || body.dataset.runtimeDetailLoaded === 'true') return;
+        body.dataset.loadState = 'loading';
+        body.innerHTML = `
+          <div class="reader-skeleton" aria-label="正文加载中">
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+        `;
       };
 
       const updateRuntimeHomeMetrics = (articles) => {
@@ -2415,6 +2508,7 @@ const sidebarNavigation = getMyBlogSidebarNavigation(withBase);
         writeJson(storageKeys.bookmarks, next);
         updateBookmarkButton();
         renderSidebarState();
+        showReaderToast(exists ? '已取消收藏' : '已收藏');
       };
 
       const updateReadingProgress = () => {
@@ -2809,6 +2903,7 @@ const sidebarNavigation = getMyBlogSidebarNavigation(withBase);
         renderSidebarState();
         renderReaderMiniGraph();
         hideSelectionToolbar();
+        showReaderToast('已标记');
       };
 
       const search = (query) => {
@@ -3011,11 +3106,14 @@ const sidebarNavigation = getMyBlogSidebarNavigation(withBase);
         const body = content.querySelector('[data-runtime-detail-body]');
         const detailUrl = normalizeRuntimeDetailUrl(body?.dataset.runtimeDetailUrl);
         if (!body || !detailUrl || body.dataset.runtimeDetailLoaded === 'true') return;
+        renderRuntimeDetailSkeleton(body);
         try {
           const detail = await readRuntimeDetail(detailUrl);
           if (!detail?.article?.html) return;
           body.innerHTML = detail.article.html;
           body.dataset.runtimeDetailLoaded = 'true';
+          body.dataset.loadState = 'loaded';
+          enhanceReaderCodeBlocks(body);
           syncRuntimeTocFromContent(content);
           renderRuntimeReaderNavigation();
           restoreRuntimeReaderPosition();
@@ -3065,6 +3163,7 @@ const sidebarNavigation = getMyBlogSidebarNavigation(withBase);
             if (kicker) kicker.textContent = article.card?.eyebrow || article.kind || 'MarkdownObject';
             body.innerHTML = article.html || '<p>正文为空。</p>';
             body.dataset.loadState = article.html ? 'loaded' : 'empty';
+            enhanceReaderCodeBlocks(body);
             const collectionId = session.dataset.collectionId || '';
             if (collectionId && article.id) {
               const url = new URL(window.location.href);
@@ -3314,7 +3413,29 @@ const sidebarNavigation = getMyBlogSidebarNavigation(withBase);
         openSearchOverlay({ query: target.dataset.miniTag || '', kind: 'all' });
       });
 
-      drawerBody?.addEventListener('click', (event) => {
+      drawerBody?.addEventListener('click', async (event) => {
+        const codeCopy = event.target instanceof Element ? event.target.closest('[data-reader-code-copy]') : null;
+        if (codeCopy instanceof HTMLButtonElement) {
+          event.preventDefault();
+          event.stopPropagation();
+          const block = codeCopy.closest('[data-reader-code-block], figure[data-rehype-pretty-code-figure]');
+          const text = block?.querySelector('pre')?.textContent || '';
+          if (!text.trim()) return;
+          const previousLabel = codeCopy.textContent || '复制';
+          try {
+            await navigator.clipboard.writeText(text);
+            codeCopy.textContent = '已复制';
+            showReaderToast('代码已复制');
+          } catch {
+            window.prompt('复制这段代码', text);
+            showReaderToast('请手动复制');
+          } finally {
+            window.setTimeout(() => {
+              codeCopy.textContent = previousLabel;
+            }, 1200);
+          }
+          return;
+        }
         const tocLink = event.target instanceof Element ? event.target.closest('.home-article-toc a[href^="#"]') : null;
         if (tocLink instanceof HTMLAnchorElement) {
           event.preventDefault();
@@ -3450,8 +3571,11 @@ const sidebarNavigation = getMyBlogSidebarNavigation(withBase);
         if (!text) return;
         try {
           await navigator.clipboard.writeText(text);
+          showReaderToast('选中文本已复制');
         } catch {
           // Clipboard can be unavailable in some preview contexts.
+          window.prompt('复制这段文字', text);
+          showReaderToast('请手动复制');
         }
         hideSelectionToolbar();
       });
