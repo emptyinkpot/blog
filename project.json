@@ -6,11 +6,11 @@
   "defaultBranch": "main",
   "localSourceRoot": "E:\\My Project\\MyBlog",
   "serverSourceCheckout": {
-    "status": "retired",
+    "status": "runtime-projector-workspace",
     "host": "ubuntu@124.220.233.126",
     "sourceRoot": "/srv/myblog/repo",
     "deploymentRoot": "/srv/myblog/site",
-    "rule": "Server keeps deploy artifacts and runtime data only; do not recreate an editable source checkout on the server."
+    "rule": "/srv/myblog/repo is the systemd runtime projector code workspace only; it is forbidden as a deploy authority or editable production source."
   },
   "siteAppRoot": "apps/web",
   "adminAppRoot": "apps/admin-next",
@@ -19,12 +19,12 @@
   "activeArticleTruthRoot": "public-data/runtime/content-index.json",
   "vaultFileTruthRoot": "Windows:E:\\Vaults\\Obsidian",
   "authoringTruthRoot": "Windows:E:\\Vaults\\Obsidian",
-  "serverHotMirrorRoot": "Linux:/home/vault/Obsidian",
-  "publicContentAccessRoot": "/openlist/Obsidian",
-  "contentControlPlaneRoot": "OpenList:/openlist/Obsidian",
-  "openListLocalMount": "OpenList:/Obsidian -> Linux:/home/vault/Obsidian",
+  "serverHotMirrorRoot": "Linux:/home/vault/obsidian-git",
+  "publicContentAccessRoot": "/openlist/obsidian-git",
+  "contentControlPlaneRoot": "OpenList:/openlist/obsidian-git",
+  "openListLocalMount": "OpenList:/obsidian-git -> Linux:/home/vault/obsidian-git",
   "openListPublicRoots": [
-    "/Obsidian",
+    "/obsidian-git",
     "/腾讯云COS",
     "/夸克网盘"
   ],
@@ -145,12 +145,12 @@
     "gitRepo": "https://github.com/emptyinkpot/blog",
     "vaultFileTruthRoot": "Windows:E:\\Vaults\\Obsidian",
     "authoringTruthRoot": "Windows:E:\\Vaults\\Obsidian",
-    "serverHotMirrorRoot": "Linux:/home/vault/Obsidian",
-    "publicContentAccessRoot": "/openlist/Obsidian",
-    "contentControlPlaneRoot": "OpenList:/openlist/Obsidian",
-    "openListLocalMount": "OpenList:/Obsidian -> Linux:/home/vault/Obsidian",
+    "serverHotMirrorRoot": "Linux:/home/vault/obsidian-git",
+    "publicContentAccessRoot": "/openlist/obsidian-git",
+    "contentControlPlaneRoot": "OpenList:/openlist/obsidian-git",
+    "openListLocalMount": "OpenList:/obsidian-git -> Linux:/home/vault/obsidian-git",
     "openListPublicRoots": [
-      "/Obsidian",
+      "/obsidian-git",
       "/腾讯云COS",
       "/夸克网盘"
     ],

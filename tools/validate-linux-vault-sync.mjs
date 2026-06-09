@@ -21,6 +21,12 @@ echo "--- paths"
 test -d /home/vault/obsidian-git
 test -d /home/vault/obsidian-git/.git
 git -C /home/vault/obsidian-git status --short --branch
+echo "--- projector workspace"
+test -d /srv/myblog/repo/.git
+git -C /srv/myblog/repo fetch origin main
+git -C /srv/myblog/repo status --short --branch | grep -F "## main...origin/main"
+test "$(git -C /srv/myblog/repo config --get remote.origin.url)" = "https://ghproxy.net/https://github.com/emptyinkpot/blog.git"
+test "$(git -C /srv/myblog/repo config --get remote.origin.pushurl)" = "https://github.com/emptyinkpot/blog.git"
 echo "--- projector"
 systemctl cat myblog-runtime-content-projector.service | grep -F "MYBLOG_VAULT_ROOT=/home/vault/obsidian-git"
 systemctl cat myblog-runtime-content-projector.service | grep -F "MYBLOG_VAULT_WATCH_ROOT=/home/vault/obsidian-git"

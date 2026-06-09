@@ -40,6 +40,7 @@
       "C:\\Users\\ASUS-KL\\.codex-runtime\\worktrees\\*",
       "/srv/myblog/repo"
     ],
+    "forbiddenSourcesRule": "/srv/myblog/repo is allowed only as the server runtime projector code workspace; it is forbidden as a deploy source.",
     "incidentReference": "2026-05-07 stale worktree deploy regression",
     "sourceWorkspace": "E:\\My Project\\MyBlog",
     "requireCleanTree": true,

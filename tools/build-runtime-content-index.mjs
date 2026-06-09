@@ -4,7 +4,7 @@ import crypto from 'node:crypto';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { renderMarkdownToHtml } from '../apps/web/src/lib/markdown/pipeline.mjs';
 
-const defaultVaultRoot = process.env.MYBLOG_VAULT_ROOT || (process.platform === 'win32' ? 'E:/Vaults/obsidian-git' : '/home/vault/obsidian-git');
+const defaultVaultRoot = process.env.MYBLOG_VAULT_ROOT || (process.platform === 'win32' ? 'E:/Vaults/Obsidian' : '/home/vault/obsidian-git');
 const defaultSourceRootLabel = process.env.MYBLOG_RUNTIME_SOURCE_ROOT_LABEL || '/home/vault/obsidian-git';
 const defaultOpenListRootLabel = process.env.MYBLOG_RUNTIME_OPENLIST_ROOT_LABEL || '/openlist/obsidian-git';
 const sourceRootType = 'vault';
@@ -42,7 +42,7 @@ export async function buildRuntimeContentIndex(options = {}) {
     generatedAt,
     authority: {
       type: 'markdown-runtime-index',
-      fileTruth: process.platform === 'win32' ? 'E:\\Vaults\\obsidian-git' : '/home/vault/obsidian-git',
+      fileTruth: process.platform === 'win32' ? 'E:\\Vaults\\Obsidian' : '/home/vault/obsidian-git',
       authoringTruth: `${sourceRootLabel}`,
       publicFileAccess: `${openListRootLabel}`,
       projectionTruth: 'public-data/runtime/content-index.json'
@@ -129,7 +129,7 @@ function createEmptyRuntimeIndex() {
     generatedAt: new Date().toISOString(),
     authority: {
       type: 'markdown-runtime-index',
-      fileTruth: process.platform === 'win32' ? 'E:\\Vaults\\obsidian-git' : '/home/vault/obsidian-git',
+      fileTruth: process.platform === 'win32' ? 'E:\\Vaults\\Obsidian' : '/home/vault/obsidian-git',
       authoringTruth: defaultSourceRootLabel,
       publicFileAccess: defaultOpenListRootLabel,
       projectionTruth: 'public-data/runtime/content-index.json',

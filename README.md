@@ -40,14 +40,14 @@ Vault
 - Canonical production source workspace: `E:\My Project\MyBlog`.
 - GitHub repository `main` is the delivery surface; GitHub Actions builds from source and deploys static output to the server.
 - Production static root: `/srv/myblog/site`.
-- The server must not keep an editable MyBlog source checkout under `/srv/myblog/repo`.
+- Server runtime projector workspace: `/srv/myblog/repo`; it is a service code workspace for `myblog-runtime-content-projector.service`, not a deployment authority.
 - Active article projection: `public-data/runtime/content-index.json`.
 - Generated production projection: `/srv/myblog/site/runtime/content-index.json`.
 - Windows Obsidian authoring truth: `E:\Vaults\Obsidian`.
-- Linux runtime hot mirror: `/home/vault/Obsidian`.
-- OpenList content control plane: `/openlist/Obsidian`.
-- OpenList 本地挂载：`/Obsidian -> /home/vault/Obsidian`.
-- OpenList public roots include `/Obsidian`, `/腾讯云COS`, and `/夸克网盘`.
+- Linux runtime hot mirror: `/home/vault/obsidian-git`.
+- OpenList content control plane: `/openlist/obsidian-git`.
+- OpenList 本地挂载：`/obsidian-git -> /home/vault/obsidian-git`.
+- OpenList public roots include `/obsidian-git`, `/腾讯云COS`, and `/夸克网盘`.
 
 ## Repository Shape
 
@@ -149,7 +149,7 @@ AppFlowy 只保留 `infra/appflowy-cloud/` skeleton during stabilization and mus
 
 ## Deployment
 
-Deploy from the local source workspace by pushing `main` to GitHub. GitHub Actions builds `apps/web/dist` and rsyncs it to `/srv/myblog/site`.
+Deploy from the local source workspace by pushing `main` to GitHub. GitHub Actions builds `apps/web/dist` and rsyncs it to `/srv/myblog/site`. `/srv/myblog/repo` may exist on the server only as the runtime projector code workspace and must not be used as a deploy source.
 
 ```bash
 cd "E:\My Project\MyBlog"

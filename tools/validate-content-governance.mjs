@@ -99,13 +99,13 @@ function validateRuntimeArticles() {
 
     if (!article?.openlistPath) {
       issues.push(`Runtime article is missing openlistPath: ${label}`);
-    } else if (!String(article.openlistPath).startsWith('/openlist/Obsidian/docs/')) {
+    } else if (!String(article.openlistPath).startsWith('/openlist/obsidian-git/')) {
       issues.push(`Runtime article openlistPath must use the public OpenList content bus: ${label}`);
     }
 
     if (!article?.openlistUrl) {
       issues.push(`Runtime article is missing openlistUrl: ${label}`);
-    } else if (!String(article.openlistUrl).startsWith('/openlist/Obsidian/docs/')) {
+    } else if (!String(article.openlistUrl).startsWith('/openlist/obsidian-git/')) {
       issues.push(`Runtime article openlistUrl must use the public OpenList content bus: ${label}`);
     }
 
