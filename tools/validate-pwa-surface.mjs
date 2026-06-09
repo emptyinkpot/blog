@@ -9,6 +9,7 @@ const serviceWorkerPath = 'apps/web/public/sw.js';
 const assetLinksPath = 'apps/web/public/.well-known/assetlinks.json';
 const baseLayoutPath = 'apps/web/src/layouts/BaseLayout.astro';
 const homePagePath = 'apps/web/src/pages/index.astro';
+const postPagePath = 'apps/web/src/pages/posts/[slug].astro';
 const twaContractPath = 'apps/android-shell/twa.contract.json';
 
 validateManifest();
@@ -120,12 +121,17 @@ function validateLayoutRegistration() {
 function validateBrandSurface() {
   const layout = readText(baseLayoutPath);
   const homePage = readText(homePagePath);
+  const postPage = readText(postPagePath);
   const favicon = readText('apps/web/public/favicon.svg');
 
   [
     "title = '空瓶子'",
     "description = '空瓶子的个人内容站",
     'apple-mobile-web-app-title" content="空瓶子"',
+    'property="og:site_name" content="空瓶子"',
+    'property="og:title" content={title}',
+    'name="twitter:card" content="summary_large_image"',
+    'title="空瓶子 RSS"',
     '/favicon.svg'
   ].forEach((needle) => {
     if (!layout.includes(needle)) {
@@ -143,10 +149,23 @@ function validateBrandSurface() {
     '<BaseLayout title="空瓶子"',
     'description="空瓶子的首页',
     'data-copy-key="home.brand.name">空瓶子</span>',
-    '<h1 data-hero-title data-copy-key="home.banner.title">空瓶子</h1>'
+    '<h1 data-hero-title data-copy-key="home.banner.title">空瓶子</h1>',
+    'data-article-summary',
+    'data-article-meta',
+    'data-reader-copy-link',
+    "showReaderToast('阅读链接已复制')"
   ].forEach((needle) => {
     if (!homePage.includes(needle)) {
       issues.push(`home page brand surface is missing: ${needle}`);
+    }
+  });
+
+  [
+    'title={`${article.title} | 空瓶子`}',
+    'type="article"'
+  ].forEach((needle) => {
+    if (!postPage.includes(needle)) {
+      issues.push(`post page brand surface is missing: ${needle}`);
     }
   });
 }

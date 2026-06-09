@@ -952,6 +952,8 @@ const sidebarNavigation = getMyBlogSidebarNavigation(withBase);
         <div>
           <span data-article-kicker></span>
           <h2 id="home-article-title" data-article-title></h2>
+          <p class="home-article-drawer__summary" data-article-summary></p>
+          <div class="home-article-drawer__meta" data-article-meta></div>
         </div>
         <div class="home-article-drawer__actions">
           <div class="reader-theme-switch" aria-label="阅读主题">
@@ -960,6 +962,7 @@ const sidebarNavigation = getMyBlogSidebarNavigation(withBase);
             <button type="button" data-reader-theme="dark" title="夜间" aria-label="夜间">☾</button>
           </div>
           <button type="button" data-reader-bookmark>收藏</button>
+          <button type="button" data-reader-copy-link>复制链接</button>
           <button type="button" data-reader-seal>盖章</button>
           <a href={withBase('/knowledge/')} data-reader-graph>知识图谱</a>
           <a href={withBase('/posts/')} data-article-full>完整页面</a>
@@ -1071,6 +1074,9 @@ const sidebarNavigation = getMyBlogSidebarNavigation(withBase);
           data-book-id={entry.bookItem?.id ?? ''}
           data-kicker={entry.kicker}
           data-title={entry.title}
+          data-summary={entry.summary}
+          data-date={entry.date ?? ''}
+          data-tags={(entry.tags ?? []).join(' / ')}
         >
           {entry.kind !== 'collection' && (
             <header class="home-article-intro">
@@ -1419,10 +1425,13 @@ const sidebarNavigation = getMyBlogSidebarNavigation(withBase);
       const drawerBody = document.querySelector('[data-article-body]');
       const titleTarget = document.querySelector('[data-article-title]');
       const kickerTarget = document.querySelector('[data-article-kicker]');
+      const summaryTarget = document.querySelector('[data-article-summary]');
+      const metaTarget = document.querySelector('[data-article-meta]');
       const fullLink = document.querySelector('[data-article-full]');
       const readLink = document.querySelector('[data-article-read]');
       const shelfLink = document.querySelector('[data-article-shelf]');
       const bookmarkButton = document.querySelector('[data-reader-bookmark]');
+      const copyLinkButton = document.querySelector('[data-reader-copy-link]');
       const progress = document.querySelector('[data-reading-progress]');
       const filterButtons = [...document.querySelectorAll('[data-feed-filter]')];
       const getCards = () => [...document.querySelectorAll('[data-feed-card]')];
@@ -3211,6 +3220,9 @@ const sidebarNavigation = getMyBlogSidebarNavigation(withBase);
         const reader = content.matches('.home-article-reader') ? content : content.querySelector('.home-article-reader');
         const title = reader?.dataset.title ?? '';
         const kicker = reader?.dataset.kicker ?? '';
+        const summary = reader?.dataset.summary ?? '';
+        const date = reader?.dataset.date ?? '';
+        const tags = reader?.dataset.tags ?? '';
         const href = reader?.dataset.fullHref ?? '#';
         const kind = reader?.dataset.kind ?? '';
         const isBookDrawer = kind === 'book';
@@ -3229,6 +3241,16 @@ const sidebarNavigation = getMyBlogSidebarNavigation(withBase);
         articleDrawer?.classList.toggle('home-article-drawer--collection', isCollectionDrawer);
         if (titleTarget) titleTarget.textContent = title;
         if (kickerTarget) kickerTarget.textContent = kicker;
+        if (summaryTarget) summaryTarget.textContent = summary;
+        if (metaTarget) {
+          metaTarget.replaceChildren(
+            ...[date, tags].filter(Boolean).map((value) => {
+              const item = document.createElement('span');
+              item.textContent = value;
+              return item;
+            })
+          );
+        }
         if (fullLink) {
           fullLink.setAttribute('href', href);
           fullLink.textContent = isBookDrawer ? '书籍详情' : '完整页面';
@@ -3395,6 +3417,19 @@ const sidebarNavigation = getMyBlogSidebarNavigation(withBase);
       });
 
       bookmarkButton?.addEventListener('click', toggleBookmark);
+      copyLinkButton?.addEventListener('click', async () => {
+        if (!currentArticle) return;
+        const url = new URL(window.location.href);
+        url.searchParams.set('reader', currentArticle.id);
+        url.searchParams.delete('highlight');
+        try {
+          await navigator.clipboard.writeText(url.toString());
+          showReaderToast('阅读链接已复制');
+        } catch {
+          window.prompt('复制阅读链接', url.toString());
+          showReaderToast('请手动复制');
+        }
+      });
       drawerBody?.addEventListener('scroll', () => {
         updateReadingProgress();
         updateActiveToc();

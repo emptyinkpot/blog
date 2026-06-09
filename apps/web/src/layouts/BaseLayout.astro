@@ -3,7 +3,7 @@ import SiteFooter from '../components/shared/SiteFooter';
 import HoverPreviewSystem from '../components/react/HoverPreviewSystem';
 import { visualCollections } from '../data/visuals';
 import { getMyBlogRuntimeResources } from '../lib/myblog/plugins.mjs';
-import { withBase } from '../lib/site';
+import { absoluteUrl, withBase } from '../lib/site';
 import { LEGACY_RUNTIME_BRIDGES, RUNTIME_EVENT_NAMES } from '../../../../packages/runtime-kernel/src/events';
 import { RUNTIME_STORAGE_KEYS } from '../../../../packages/runtime-kernel/src/storage';
 import '../styles/global.css';
@@ -12,6 +12,8 @@ interface Props {
   title?: string;
   description?: string;
   canonical?: string;
+  image?: string;
+  type?: string;
   hideSiteChrome?: boolean;
   appMode?: boolean;
   barePage?: boolean;
@@ -21,6 +23,8 @@ const {
   title = '空瓶子',
   description = '空瓶子的个人内容站，基于 Astro 构建，强调结构化内容、专题组织与长期演进能力。',
   canonical,
+  image = '/images/branding/myblog-pwa-512.png',
+  type = 'website',
   hideSiteChrome = false,
   appMode = false,
   barePage = false
@@ -33,6 +37,8 @@ const pinterestShellSeed = visualCollections.filter((collection) => collection.s
 const bodyMode = hideSiteChrome ? (appMode ? 'app-mode' : barePage ? 'bare-mode' : 'home-mode') : false;
 const useFullBleedWrap = hideSiteChrome && !barePage;
 const runtimeResources = getMyBlogRuntimeResources({ buildVersion });
+const canonicalUrl = canonical || absoluteUrl(Astro.url.pathname, Astro.site);
+const socialImage = image.startsWith('http') ? image : absoluteUrl(image, Astro.site);
 ---
 
 <html lang="zh-CN" data-theme="heritage">
@@ -42,15 +48,25 @@ const runtimeResources = getMyBlogRuntimeResources({ buildVersion });
     <meta name="generator" content={Astro.generator} />
     <meta name="description" content={description} />
     <meta name="site-build-version" content={buildVersion} />
+    <meta property="og:site_name" content="空瓶子" />
+    <meta property="og:type" content={type} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:image" content={socialImage} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={socialImage} />
     <meta name="theme-color" content="#6b2d5c" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-title" content="空瓶子" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-    {canonical && <link rel="canonical" href={canonical} />}
+    <link rel="canonical" href={canonicalUrl} />
     <link rel="manifest" href={withBase('/manifest.webmanifest')} />
     <link rel="icon" href={withBase('/favicon.svg')} type="image/svg+xml" />
     <link rel="apple-touch-icon" href={withBase('/images/branding/myblog-pwa-192.png')} />
-    <link rel="alternate" type="application/rss+xml" title="emptyinkpot RSS" href={withBase('/rss.xml')} />
+    <link rel="alternate" type="application/rss+xml" title="空瓶子 RSS" href={withBase('/rss.xml')} />
     <title>{title}</title>
     <script is:inline>
       (() => {
