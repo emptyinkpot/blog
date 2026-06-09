@@ -363,44 +363,7 @@ const musicDrawerEntries: DrawerEntry[] = musicItems.map((item) => ({
   ]
 }));
 
-const githubDrawerEntries: DrawerEntry[] = [
-  {
-    id: 'github:heatmap',
-    kind: 'github',
-    title: 'GitHub 活动热力图',
-    kicker: 'GitHub / Heatmap',
-    href: withBase('/github/'),
-    summary: `${githubAnalytics.totalContributions} 次年度活动，最近 12 周作为首页 mini 图表展示，完整年度热力图在 GitHub 仪表盘里展开。`,
-    chartVariant: 'heatmap',
-    tags: ['heatmap', 'activity'],
-    details: [
-      { label: '年度活动', value: String(githubAnalytics.totalContributions) },
-      { label: '活跃日', value: String(githubAnalytics.activeDays) }
-    ]
-  },
-  {
-    id: 'github:line',
-    kind: 'github',
-    title: '月度贡献折线',
-    kicker: 'GitHub / Line',
-    href: withBase('/github/'),
-    summary: '由 GitHub runtime API 聚合月度贡献趋势。首页保留摘要，完整图表进入 /github/。',
-    chartVariant: 'line',
-    tags: ['line', 'trend']
-  },
-  {
-    id: 'github:language',
-    kind: 'github',
-    title: '语言占比',
-    kicker: 'GitHub / Donut',
-    href: withBase('/github/'),
-    summary: githubAnalytics.topLanguage
-      ? `${githubAnalytics.topLanguage.label} 当前占比 ${githubAnalytics.topLanguage.percent}%，完整语言分布在 /github/。`
-      : '语言分布等待 GitHub snapshot 数据。',
-    chartVariant: 'language',
-    tags: ['donut', 'language']
-  },
-  ...github.repos.slice(0, 6).map((repo) => ({
+const githubDrawerEntries: DrawerEntry[] = github.repos.slice(0, 6).map((repo) => ({
     id: `github-repo:${repo.name}`,
     kind: 'github' as const,
     title: repo.name,
@@ -413,8 +376,7 @@ const githubDrawerEntries: DrawerEntry[] = [
       { label: 'Issues', value: String(repo.issues) },
       { label: 'Updated', value: formatDate(new Date(repo.updatedAt)) }
     ]
-  }))
-];
+  }));
 
 const visualDrawerEntries: DrawerEntry[] = visualCollections.map((collection) => ({
   id: `visual:${collection.id}`,
