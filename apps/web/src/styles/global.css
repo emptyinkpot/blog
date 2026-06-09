@@ -11204,10 +11204,11 @@ body.has-home-article-drawer .home-feed-main {
   --docs-reader-border: #e5e7eb;
   --docs-reader-border-strong: #d1d5db;
   --docs-reader-accent: #2563eb;
-  --docs-reader-code-bg: #f6f8fa;
-  --docs-reader-code-text: #1f2937;
-  --docs-reader-code-border: #d8dee4;
-  --docs-reader-code-muted: #57606a;
+  --docs-reader-code-bg: #f1f5f9;
+  --docs-reader-code-panel: #e2e8f0;
+  --docs-reader-code-text: #0f172a;
+  --docs-reader-code-border: #cbd5e1;
+  --docs-reader-code-muted: #475569;
   --docs-reader-note: #0969da;
   --docs-reader-tip: #1a7f37;
   --docs-reader-warning: #9a6700;
@@ -11236,10 +11237,11 @@ body.has-home-article-drawer .home-feed-main {
   --docs-reader-border: #263244;
   --docs-reader-border-strong: #374151;
   --docs-reader-accent: #60a5fa;
-  --docs-reader-code-bg: #020617;
-  --docs-reader-code-text: #e5e7eb;
-  --docs-reader-code-border: #334155;
-  --docs-reader-code-muted: #94a3b8;
+  --docs-reader-code-bg: #0f172a;
+  --docs-reader-code-panel: #111827;
+  --docs-reader-code-text: #f8fafc;
+  --docs-reader-code-border: #475569;
+  --docs-reader-code-muted: #cbd5e1;
   --docs-reader-note: #60a5fa;
   --docs-reader-tip: #4ade80;
   --docs-reader-warning: #facc15;
@@ -11606,7 +11608,7 @@ body.has-home-article-drawer .home-feed-main {
   justify-content: space-between;
   gap: 12px;
   border-bottom: 1px solid var(--docs-reader-code-border);
-  background: color-mix(in srgb, var(--docs-reader-code-bg) 72%, var(--docs-reader-bg));
+  background: var(--docs-reader-code-panel);
   padding: 0 10px 0 13px;
 }
 
@@ -11656,6 +11658,10 @@ body.has-home-article-drawer .home-feed-main {
   line-height: 1.72;
 }
 
+:root[data-theme='heritage'] .home-article-drawer:not(.home-article-drawer--book) .home-article-content :where(pre code, pre code span, figure[data-rehype-pretty-code-figure] code, figure[data-rehype-pretty-code-figure] code span) {
+  color: var(--docs-reader-code-text) !important;
+}
+
 :root[data-theme='heritage'] .home-article-drawer:not(.home-article-drawer--book) .home-article-content :where(pre, code) {
   font-family: var(--docs-reader-mono);
 }
@@ -11664,7 +11670,7 @@ body.has-home-article-drawer .home-feed-main {
   border: 1px solid var(--docs-reader-code-border);
   border-radius: 4px;
   background: var(--docs-reader-code-bg);
-  color: var(--docs-reader-strong);
+  color: var(--docs-reader-code-text);
   padding: 0.08em 0.34em;
   font-size: 0.88em;
 }
