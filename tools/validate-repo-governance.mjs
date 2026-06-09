@@ -18,6 +18,7 @@ validateStabilizationSprint();
 validateObsidianAuthorityContract();
 validateOpenListServerStorageBoundary();
 validateKnowledgeOsCore();
+validateDocumentationIsNotFactsTruth();
 
 if (issues.length) {
   console.error(['Repository governance validation failed:', ...issues.map((issue) => `- ${issue}`)].join('\n'));
@@ -29,8 +30,8 @@ console.log('Repository governance validation passed');
 function validateMigrationStatus() {
   const source = readText(resolvePath('README.md'));
 
-  if (!source.includes('public-data/runtime/content-index.json')) {
-    issues.push('README.md must document the Runtime MarkdownObject article authority');
+  if (!source.includes('Runtime MarkdownObject article projection')) {
+    issues.push('README.md must document the Runtime MarkdownObject article projection without copying concrete facts paths');
   }
 
   if (source.split('\n').some((line) => line.includes('Astro posts') && line.includes('现行'))) {
@@ -404,17 +405,13 @@ function validateStabilizationSprint() {
     issues.push('README.md must document npm run verify as the canonical verification entry');
   }
 
-  if (!codex.includes('obsidian-vault') || !codex.includes(canonicalPaths.linuxVaultRoot) || !codex.includes(canonicalPaths.openListRoot)) {
-    issues.push(`architectureCodex.ts must document the active obsidian-vault Syncthing folder, Linux hot mirror, and OpenList ${canonicalPaths.openListRoot} content control plane`);
+  if (!codex.includes('obsidian-vault') || !codex.includes('facts-entry Linux hot mirror') || !codex.includes('facts-entry OpenList public root')) {
+    issues.push('architectureCodex.ts must document the active obsidian-vault Syncthing folder, Linux hot mirror, and OpenList public root as facts-entry concepts');
   }
 }
 
 function validateObsidianAuthorityContract() {
-  const checkedFiles = [
-    'README.md',
-    'project.json',
-    'apps/web/src/data/architectureCodex.ts'
-  ];
+  const checkedFiles = ['project.json'];
 
   const requiredTerms = [
     [windowsPathMatcher(canonicalPaths.windowsVaultRoot), `Windows Obsidian authoring truth: ${canonicalPaths.windowsVaultRoot}`],
@@ -466,11 +463,7 @@ function validateObsidianAuthorityContract() {
 }
 
 function validateOpenListServerStorageBoundary() {
-  const checkedFiles = [
-    'README.md',
-    'project.json',
-    'apps/web/src/data/architectureCodex.ts'
-  ];
+  const checkedFiles = ['project.json'];
 
   const requiredTerms = [
     [textMatcher(canonicalPaths.openListMountPath), `OpenList local ${canonicalPaths.openListMountPath} mount`],
@@ -539,9 +532,8 @@ function validateOpenListServerStorageBoundary() {
     issues.push('project.json sourceOfTruthMap.serverStorageBoundary.coldLayerRule must forbid treating OpenList as an ext4/system disk replacement');
   }
 
-  const readmeMountText = `OpenList 本地挂载：\`${canonicalPaths.openListMountPath} -> ${canonicalPaths.openListMountTarget}\``;
-  if (!readme.includes(readmeMountText)) {
-    issues.push(`README.md quick-start must document the active ${canonicalPaths.openListMountPath} OpenList local mount`);
+  if (!readme.includes('npm run facts')) {
+    issues.push('README.md must point users to npm run facts for concrete OpenList and runtime paths');
   }
 
   if (!readme.includes('try_files $uri $uri/index.html =404')) {
@@ -586,6 +578,32 @@ function validateKnowledgeOsCore() {
   if (!codex.includes('Vault -> Projection -> Web Runtime -> State Services')) {
     issues.push('architectureCodex.ts must include the Knowledge OS Core topology');
   }
+}
+
+function validateDocumentationIsNotFactsTruth() {
+  const docs = [
+    ['README.md', readText(resolvePath('README.md'))],
+    ['apps/web/src/data/architectureCodex.ts', readText(resolvePath('apps/web/src/data/architectureCodex.ts'))]
+  ];
+
+  const forbiddenFactCopies = [
+    canonicalPaths.windowsVaultRoot,
+    canonicalPaths.linuxVaultRoot,
+    canonicalPaths.openListRoot,
+    canonicalPaths.openListMountPath,
+    canonicalPaths.openListMountTarget,
+    canonicalPaths.serverRuntimeProjectorWorkspace,
+    canonicalPaths.productionSiteRoot
+  ].filter(Boolean);
+
+  docs.forEach(([relativePath, source]) => {
+    forbiddenFactCopies.forEach((fact) => {
+      const escapedFact = fact.replaceAll('\\', '\\\\');
+      if (source.includes(fact) || source.includes(escapedFact)) {
+        issues.push(`${relativePath} must not copy facts entry value ${fact}; use npm run facts/project.json instead`);
+      }
+    });
+  });
 }
 
 function readText(filePath) {

@@ -2,7 +2,7 @@
 
 MyBlog is a Vault-backed knowledge projection machine. It turns Obsidian/Vault file truth into public runtime surfaces without becoming a CMS, search engine, sync engine, database owner, or architecture showcase.
 
-This README is the only human documentation entrypoint for the repository. Machine-readable truth stays in `project.json`, `workspace.manifest.json`, `workspaces/*.json`, executable validators, and the public Architecture Codex source at `apps/web/src/data/architectureCodex.ts`.
+This README is the human documentation entrypoint for the repository. Machine-readable facts stay in `project.json` and are projected through `npm run facts`; README and Architecture Codex explain the system but must not become path, endpoint, deployment, or authority truth.
 
 ## Runtime Identity
 
@@ -29,25 +29,30 @@ Vault
 -> State Services
 ```
 
-- `Vault`: `E:\Vaults\Obsidian` is the only authoring truth. Markdown, folders and assets remain human-readable and offline-capable.
+- `Vault`: the only authoring truth. Markdown, folders and assets remain human-readable and offline-capable; concrete paths are facts, not README truth.
 - `Projection`: build tools normalize Vault and sidecar data into `public-data/`; the website reads projection output instead of inventing content truth.
 - `Web Runtime`: `apps/web` is Astro plus React islands. Runtime concepts are limited to command, overlay, search and reader state.
 - `State Services`: `apps/admin-next` and MySQL store dynamic state only: reader memory, highlights, visual pins, preferences and sync logs.
 
+## Three Pillars
+
+MyBlog exposes three first-class entrypoints:
+
+```bash
+npm run run
+npm run verify
+npm run facts
+```
+
+- `run`: canonical business runtime entry; internal commands may use `run:*`.
+- `verify`: canonical verification entry; internal checks must flow through `verify:*`.
+- `facts`: canonical machine facts entry; paths, endpoints, deployment roots, OpenList roots, and authority boundaries must be read from `project.json` through this entry.
+
 ## Source And Runtime
 
-- GitHub repository: `https://github.com/emptyinkpot/blog`.
-- Canonical production source workspace: `E:\My Project\MyBlog`.
-- GitHub repository `main` is the delivery surface; GitHub Actions builds from source and deploys static output to the server.
-- Production static root: `/srv/myblog/site`.
-- Server runtime projector workspace: `/srv/myblog/repo`; it is a service code workspace for `myblog-runtime-content-projector.service`, not a deployment authority.
-- Active article projection: `public-data/runtime/content-index.json`.
-- Generated production projection: `/srv/myblog/site/runtime/content-index.json`.
-- Windows Obsidian authoring truth: `E:\Vaults\Obsidian`.
-- Linux runtime hot mirror: `/home/vault/obsidian-git`.
-- OpenList content control plane: `/openlist/obsidian-git`.
-- OpenList 本地挂载：`/obsidian-git -> /home/vault/obsidian-git`.
-- OpenList public roots include `/obsidian-git`, `/腾讯云COS`, and `/夸克网盘`.
+- GitHub `main` is the delivery surface; deployment authority and runtime workspace facts are owned by `project.json`.
+- The server runtime projector workspace is service code only, not deployment authority.
+- Runtime MarkdownObject article projection is generated data; concrete source, hot mirror, production and OpenList roots are facts, not documentation truth.
 
 ## Repository Shape
 
@@ -61,7 +66,7 @@ Vault
 - `infra/*`: service definitions and skeleton infrastructure.
 - `workspaces/*` plus `workspace.manifest.json`: workspace authority.
 
-Documentation markdown outside this README is intentionally avoided unless it is public content data. Long-lived facts belong in README, project JSON, validators, projection output, or executable code.
+Documentation markdown outside this README is intentionally avoided unless it is public content data. Long-lived machine facts belong in `project.json`; docs and validators must consume or check those facts instead of copying them.
 
 ## DataBase Gateway Boundary
 
@@ -149,10 +154,9 @@ AppFlowy 只保留 `infra/appflowy-cloud/` skeleton during stabilization and mus
 
 ## Deployment
 
-Deploy from the local source workspace by pushing `main` to GitHub. GitHub Actions builds `apps/web/dist` and rsyncs it to `/srv/myblog/site`. `/srv/myblog/repo` may exist on the server only as the runtime projector code workspace and must not be used as a deploy source.
+Deploy from the canonical source workspace by pushing `main` to GitHub. Concrete deployment targets and runtime workspaces are facts; inspect them with `npm run facts`. The server runtime projector workspace may exist only as service code and must not be used as a deploy source.
 
 ```bash
-cd "E:\My Project\MyBlog"
 npm run facts
 npm run verify
 git push origin main

@@ -57,8 +57,8 @@ if (JSON.stringify(project.knowledgeOsCore?.topology ?? []) !== JSON.stringify(e
 
 for (const term of [
   'Core topology: `Vault -> Projection -> Web Runtime -> State Services`',
-  'E:\\Vaults\\Obsidian',
-  'public-data/runtime/content-index.json',
+  'npm run facts',
+  'Runtime MarkdownObject article projection',
   'Astro plus React islands',
   'Local storage is preference/cache/legacy migration only'
 ]) {
