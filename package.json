@@ -66,7 +66,7 @@
     "cssesc": "^3.0.0",
     "debug": "^4.4.3",
     "deep-is": "^0.1.4",
-    "entities": "^7.0.1",
+    "entities": "^8.0.0",
     "escape-string-regexp": "^4.0.0",
     "eslint-compat-utils": "^0.6.5",
     "eslint-scope": "^9.1.2",
