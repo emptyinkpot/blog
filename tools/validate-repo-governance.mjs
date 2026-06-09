@@ -8,6 +8,7 @@ const canonicalPaths = projectFacts.paths;
 const issues = [];
 
 validateMigrationStatus();
+validateThreePillars();
 validatePackageScripts();
 validateGitHubPagesRetired();
 validateWorkspaceGovernance();
@@ -34,6 +35,32 @@ function validateMigrationStatus() {
 
   if (source.split('\n').some((line) => line.includes('Astro posts') && line.includes('现行'))) {
     issues.push('README.md still marks Astro posts as current content authority');
+  }
+}
+
+function validateThreePillars() {
+  const packageJson = JSON.parse(readText(resolvePath('package.json')));
+  const scripts = packageJson.scripts ?? {};
+
+  if (scripts.run !== 'npm run dev') {
+    issues.push('package.json scripts.run must be the canonical run entry and delegate to dev');
+  }
+
+  if (scripts.verify !== 'npm run check && npm run check:vault-sync') {
+    issues.push('package.json scripts.verify must be the canonical verify entry and delegate to check plus check:vault-sync');
+  }
+
+  if (scripts.facts !== 'node tools/project-facts.mjs --print') {
+    issues.push('package.json scripts.facts must be the canonical facts entry and print project facts');
+  }
+
+  if (!fileExists('project.json')) {
+    issues.push('project.json must exist as the facts entry');
+  }
+
+  const factsReader = readText(resolvePath('tools/project-facts.mjs'));
+  if (!factsReader.includes("path.join(rootDir, 'project.json')")) {
+    issues.push('tools/project-facts.mjs must read project.json as the only facts owner');
   }
 }
 

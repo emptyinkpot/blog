@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
+    "run": "npm run dev",
+    "verify": "npm run check && npm run check:vault-sync",
+    "facts": "node tools/project-facts.mjs --print",
     "dev": "npm --prefix apps/web run dev",
     "admin:dev": "npm --prefix apps/admin-next run dev",
     "build": "npm run runtime:books && npm --prefix apps/web run build",

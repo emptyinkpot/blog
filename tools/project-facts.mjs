@@ -3,6 +3,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const invokedDirectly = process.argv[1] ? path.resolve(process.argv[1]) === fileURLToPath(import.meta.url) : false;
 
 export function readProjectFacts(rootDir = repoRoot) {
   const projectPath = path.join(rootDir, 'project.json');
@@ -43,4 +44,13 @@ function parseOpenListMount(value) {
     mountPath: stripPrefix(left, 'OpenList:'),
     target: stripPrefix(right, 'Linux:')
   };
+}
+
+if (invokedDirectly) {
+  const facts = readProjectFacts();
+  if (process.argv.includes('--print')) {
+    process.stdout.write(`${JSON.stringify(facts, null, 2)}\n`);
+  } else {
+    process.stdout.write('project.json\n');
+  }
 }
