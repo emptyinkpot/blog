@@ -134,7 +134,7 @@
     "util-deprecate": "^1.0.2",
     "which": "^2.0.2",
     "word-wrap": "^1.2.5",
-    "yocto-queue": "^0.1.0"
+    "yocto-queue": "^1.2.2"
   },
   "repository": {
     "type": "git",
