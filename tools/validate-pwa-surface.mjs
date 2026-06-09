@@ -13,6 +13,7 @@ const twaContractPath = 'apps/android-shell/twa.contract.json';
 validateManifest();
 validateServiceWorkerBoundary();
 validateLayoutRegistration();
+validateBrandSurface();
 validateTwaContract();
 validateAssetLinks();
 
@@ -30,6 +31,8 @@ function validateManifest() {
   expectEqual(manifest.start_url, '/', 'manifest start_url must be /');
   expectEqual(manifest.scope, '/', 'manifest scope must be /');
   expectEqual(manifest.display, 'standalone', 'manifest display must be standalone');
+  expectEqual(manifest.name, '空瓶子', 'manifest name must match canonical site title');
+  expectEqual(manifest.short_name, '空瓶子', 'manifest short_name must match canonical site title');
   expectString(manifest.name, 'manifest name is required');
   expectString(manifest.short_name, 'manifest short_name is required');
   expectString(manifest.theme_color, 'manifest theme_color is required');
@@ -109,6 +112,28 @@ function validateLayoutRegistration() {
   ].forEach((needle) => {
     if (!source.includes(needle)) {
       issues.push(`BaseLayout is missing PWA registration fragment: ${needle}`);
+    }
+  });
+}
+
+function validateBrandSurface() {
+  const layout = readText(baseLayoutPath);
+  const favicon = readText('apps/web/public/favicon.svg');
+
+  [
+    "title = '空瓶子'",
+    "description = '空瓶子的个人内容站",
+    'apple-mobile-web-app-title" content="空瓶子"',
+    '/favicon.svg'
+  ].forEach((needle) => {
+    if (!layout.includes(needle)) {
+      issues.push(`BaseLayout brand surface is missing: ${needle}`);
+    }
+  });
+
+  ['aria-label="空瓶子"', '<rect width="64" height="64" rx="14"', 'stroke="#111827"'].forEach((needle) => {
+    if (!favicon.includes(needle)) {
+      issues.push(`favicon.svg brand mark is missing: ${needle}`);
     }
   });
 }

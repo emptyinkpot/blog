@@ -18,8 +18,8 @@ interface Props {
 }
 
 const {
-  title = 'emptyinkpot',
-  description = 'emptyinkpot 的个人内容站，基于 Astro 构建，强调结构化内容、专题组织与长期演进能力。',
+  title = '空瓶子',
+  description = '空瓶子的个人内容站，基于 Astro 构建，强调结构化内容、专题组织与长期演进能力。',
   canonical,
   hideSiteChrome = false,
   appMode = false,
@@ -44,7 +44,7 @@ const runtimeResources = getMyBlogRuntimeResources({ buildVersion });
     <meta name="site-build-version" content={buildVersion} />
     <meta name="theme-color" content="#6b2d5c" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-title" content="MyBlog" />
+    <meta name="apple-mobile-web-app-title" content="空瓶子" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     {canonical && <link rel="canonical" href={canonical} />}
     <link rel="manifest" href={withBase('/manifest.webmanifest')} />

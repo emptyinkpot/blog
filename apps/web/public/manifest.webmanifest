@@ -1,8 +1,8 @@
 {
   "id": "/",
-  "name": "MyBlog Runtime",
-  "short_name": "MyBlog",
-  "description": "MyBlog Runtime Client for reading, knowledge objects, visuals and personal archive projection.",
+  "name": "空瓶子",
+  "short_name": "空瓶子",
+  "description": "空瓶子的阅读、知识对象、视觉素材与个人归档投影。",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
