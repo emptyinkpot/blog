@@ -233,20 +233,6 @@ export function getRuntimeHeadings(markdown: string): RuntimeHeading[] {
     }));
 }
 
-function stripMarkdown(text: string) {
-  return text
-    .replace(/```[\s\S]*?```/g, ' ')
-    .replace(/`([^`]+)`/g, '$1')
-    .replace(/!\[[^\]]*\]\([^)]+\)/g, ' ')
-    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
-    .replace(/^>\s?/gm, '')
-    .replace(/^#+\s+/gm, '')
-    .replace(/[*_~>-]/g, ' ')
-    .replace(/\|/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim();
-}
-
 function slugify(value: string) {
   return value
     .trim()
