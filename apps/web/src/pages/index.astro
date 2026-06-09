@@ -3154,7 +3154,10 @@ const sidebarNavigation = getMyBlogSidebarNavigation(withBase);
         });
         saveHistory(currentArticle);
         updateBookmarkButton();
-        if (storedMemory?.scrollTop && !options.highlightId) {
+        if (options.resetScroll) {
+          drawerBody.scrollTop = 0;
+          updateReadingProgress();
+        } else if (storedMemory?.scrollTop && !options.highlightId) {
           requestAnimationFrame(() => {
             drawerBody.scrollTop = storedMemory.scrollTop;
             updateReadingProgress();
@@ -3320,8 +3323,11 @@ const sidebarNavigation = getMyBlogSidebarNavigation(withBase);
         }
         const navButton = event.target instanceof Element ? event.target.closest('[data-runtime-reader-nav]') : null;
         if (navButton instanceof HTMLElement) {
+          event.preventDefault();
+          event.stopPropagation();
+          articleDrawer?.focus?.({ preventScroll: true });
           const drawerId = navButton.dataset.runtimeReaderNav;
-          if (drawerId) openArticleDrawer(drawerId, navButton);
+          if (drawerId) openArticleDrawer(drawerId, articleDrawer || navButton, { resetScroll: true });
         }
       });
 
