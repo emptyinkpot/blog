@@ -11790,6 +11790,134 @@ body.has-home-article-drawer .home-feed-main {
   font-weight: 600;
 }
 
+:root[data-theme='heritage'] .home-article-drawer:not(.home-article-drawer--book) .reader-mini-graph {
+  border-top: 1px solid var(--docs-reader-border);
+  padding-top: 18px;
+}
+
+:root[data-theme='heritage'] .home-article-drawer:not(.home-article-drawer--book) .reader-mini-graph header span,
+:root[data-theme='heritage'] .home-article-drawer:not(.home-article-drawer--book) .home-article-related > span {
+  color: var(--docs-reader-faint);
+  font-family: var(--docs-reader-font);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+:root[data-theme='heritage'] .home-article-drawer:not(.home-article-drawer--book) .reader-mini-graph header a {
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  color: var(--docs-reader-accent);
+  font-family: var(--docs-reader-font);
+  font-size: 12px;
+  text-decoration: none;
+}
+
+:root[data-theme='heritage'] .home-article-drawer:not(.home-article-drawer--book) .reader-mini-graph__grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px 22px;
+}
+
+:root[data-theme='heritage'] .home-article-drawer:not(.home-article-drawer--book) .reader-mini-graph__grid strong {
+  color: var(--docs-reader-faint);
+  font-family: var(--docs-reader-font);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: none;
+}
+
+:root[data-theme='heritage'] .home-article-drawer:not(.home-article-drawer--book) .reader-mini-graph button {
+  border: 0;
+  border-bottom: 1px solid var(--docs-reader-border);
+  background: transparent;
+  padding: 4px 0 6px;
+  color: var(--docs-reader-text);
+  font-family: var(--docs-reader-font);
+  font-size: 13px;
+}
+
+:root[data-theme='heritage'] .home-article-drawer:not(.home-article-drawer--book) .reader-mini-graph button:hover,
+:root[data-theme='heritage'] .home-article-drawer:not(.home-article-drawer--book) .reader-mini-graph button:focus-visible {
+  border-bottom-color: var(--docs-reader-accent);
+  color: var(--docs-reader-accent);
+}
+
+:root[data-theme='heritage'] .home-article-drawer:not(.home-article-drawer--book) .reader-mini-graph p {
+  color: var(--docs-reader-muted);
+  font-size: 12px;
+}
+
+:root[data-theme='heritage'] .home-article-drawer:not(.home-article-drawer--book) .home-article-related {
+  border-top: 1px solid var(--docs-reader-border);
+  margin-top: 34px;
+  padding-top: 18px;
+}
+
+:root[data-theme='heritage'] .home-article-drawer:not(.home-article-drawer--book) .home-article-related h3 {
+  margin: 0;
+  color: var(--docs-reader-strong);
+  font-family: var(--docs-reader-font);
+  font-size: 17px;
+  font-weight: 650;
+  line-height: 1.3;
+}
+
+:root[data-theme='heritage'] .home-article-drawer:not(.home-article-drawer--book) .home-article-related__list {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0;
+  border-top: 1px solid var(--docs-reader-border);
+}
+
+:root[data-theme='heritage'] .home-article-drawer:not(.home-article-drawer--book) .home-article-related button {
+  display: grid;
+  gap: 5px;
+  border: 0;
+  border-bottom: 1px solid var(--docs-reader-border);
+  border-radius: 0;
+  background: transparent;
+  padding: 14px 0;
+  color: var(--docs-reader-text);
+  text-align: left;
+}
+
+:root[data-theme='heritage'] .home-article-drawer:not(.home-article-drawer--book) .home-article-related button:hover,
+:root[data-theme='heritage'] .home-article-drawer:not(.home-article-drawer--book) .home-article-related button:focus-visible {
+  color: var(--docs-reader-accent);
+}
+
+:root[data-theme='heritage'] .home-article-drawer:not(.home-article-drawer--book) .home-article-related small,
+:root[data-theme='heritage'] .home-article-drawer:not(.home-article-drawer--book) .home-article-related i {
+  color: var(--docs-reader-faint);
+  font-family: var(--docs-reader-font);
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 500;
+  text-transform: none;
+}
+
+:root[data-theme='heritage'] .home-article-drawer:not(.home-article-drawer--book) .home-article-related strong {
+  color: inherit;
+  font-family: var(--docs-reader-font);
+  font-size: 14px;
+  font-weight: 650;
+  line-height: 1.35;
+}
+
+:root[data-theme='heritage'] .home-article-drawer:not(.home-article-drawer--book) .home-article-related em {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  color: var(--docs-reader-muted);
+  font-family: var(--docs-reader-font);
+  font-size: 12px;
+  font-style: normal;
+  line-height: 1.55;
+}
+
 .reader-skeleton {
   display: grid;
   gap: 13px;

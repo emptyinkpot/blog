@@ -1167,13 +1167,15 @@ const sidebarNavigation = getMyBlogSidebarNavigation(withBase);
               </section>
               {related.length ? (
                 <section class="home-article-related" aria-label="继续阅读">
-                  <span>继续阅读</span>
-                  <h3>相关内容</h3>
-                  <div>
-                    {related.map((item) => (
+                  <span>Next</span>
+                  <h3>继续阅读</h3>
+                  <div class="home-article-related__list">
+                    {related.slice(0, 3).map((item) => (
                       <button type="button" data-memory-drawer={item.id}>
                         <small>{item.kicker}</small>
                         <strong>{item.title}</strong>
+                        <em>{item.summary}</em>
+                        {item.tags?.length ? <i>{item.tags.slice(0, 2).join(' / ')}</i> : null}
                       </button>
                     ))}
                   </div>

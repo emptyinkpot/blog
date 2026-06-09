@@ -17,6 +17,7 @@ validateTocAutoReveal();
 validateInlineScriptAwaitBoundary();
 validateReaderInteractionStyles();
 validateReaderLayoutContract();
+validateReaderContinuationContract();
 
 if (issues.length) {
   console.error(['Reader interaction validation failed:', ...issues.map((issue) => `- ${issue}`)].join('\n'));
@@ -164,6 +165,30 @@ function validateReaderLayoutContract() {
     'calc(50% - (var(--docs-reader-toc-width) + var(--docs-reader-gap) + var(--docs-reader-width))'
   ].forEach((forbidden) => {
     if (globalCss.includes(forbidden)) issues.push(`reader layout must not regress to left-TOC formula: ${forbidden}`);
+  });
+}
+
+function validateReaderContinuationContract() {
+  [
+    'class="home-article-related__list"',
+    '<em>{item.summary}</em>',
+    "item.tags.slice(0, 2).join(' / ')",
+    '.home-article-related__list',
+    '.home-article-related em',
+    '.reader-mini-graph__grid',
+    'color: var(--docs-reader-accent)'
+  ].forEach((needle) => {
+    const source = needle.startsWith('.') || needle.startsWith('color:') ? globalCss : index;
+    if (!source.includes(needle)) issues.push(`reader continuation contract missing: ${needle}`);
+  });
+
+  [
+    ':root[data-theme=\'heritage\'] .home-article-drawer:not(.home-article-drawer--book) .home-article-related button',
+    'border-bottom: 1px solid var(--docs-reader-border)',
+    ':root[data-theme=\'heritage\'] .home-article-drawer:not(.home-article-drawer--book) .reader-mini-graph header span',
+    'color: var(--docs-reader-faint)'
+  ].forEach((needle) => {
+    if (!globalCss.includes(needle)) issues.push(`reader continuation docs override missing: ${needle}`);
   });
 }
 
