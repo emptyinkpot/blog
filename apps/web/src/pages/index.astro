@@ -1036,7 +1036,18 @@ const sidebarNavigation = getMyBlogSidebarNavigation(withBase);
   <script
     type="application/json"
     id="home-runtime-static-data"
-    set:html={JSON.stringify({ staticActivityItems, staticNodeCount, runtimeContentIndexVersion: getRuntimeContentIndex().generatedAt })}
+    set:html={JSON.stringify({
+      staticActivityItems,
+      staticNodeCount,
+      runtimeContentIndexVersion: getRuntimeContentIndex().generatedAt,
+      runtimeArticles: runtimeArticles.map((article) => ({
+        id: article.id,
+        title: article.title,
+        href: getRuntimeArticleHref(article),
+        detailPath: article.detailPath,
+        slug: article.slug
+      }))
+    })}
   />
 
   <div class="home-article-templates" hidden data-article-templates>
@@ -1712,6 +1723,7 @@ const sidebarNavigation = getMyBlogSidebarNavigation(withBase);
         `/runtime/${article?.detailPath || `articles/${article?.id || encodeURIComponent(article?.slug || '')}.json`}`;
       const runtimeDetailCache = new Map();
       let runtimeContentIndexVersion = homeRuntimeStatic.runtimeContentIndexVersion || '';
+      let runtimeReaderArticles = Array.isArray(homeRuntimeStatic.runtimeArticles) ? homeRuntimeStatic.runtimeArticles : [];
 
       const normalizeRuntimeDetailUrl = (url) => {
         if (!url) return '';
@@ -1731,9 +1743,140 @@ const sidebarNavigation = getMyBlogSidebarNavigation(withBase);
         if (cached) return cached;
         const response = await fetch(stableUrl, { cache: 'default', signal });
         if (!response.ok) return null;
-        const detail = await response.json();
+        const text = await response.text();
+        const detail = JSON.parse(text);
         runtimeDetailCache.set(stableUrl, detail);
         return detail;
+      };
+
+      const getCurrentRuntimeReaderArticleId = () => {
+        if (!currentArticle?.id) return '';
+        return String(currentArticle.id).replace(/^runtime:/, '');
+      };
+
+      const getRuntimeReaderNeighbors = (articleId = getCurrentRuntimeReaderArticleId()) => {
+        if (!articleId || !runtimeReaderArticles.length) return { previous: null, next: null };
+        const index = runtimeReaderArticles.findIndex((article) => article?.id === articleId);
+        if (index < 0) return { previous: null, next: null };
+        return {
+          previous: runtimeReaderArticles[index - 1] || null,
+          next: runtimeReaderArticles[index + 1] || null
+        };
+      };
+
+      const createRuntimeReaderNavButton = (article, label) => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.dataset.runtimeReaderNav = `runtime:${article.id}`;
+        const small = document.createElement('small');
+        const strong = document.createElement('strong');
+        small.textContent = label;
+        strong.textContent = article.title || 'Untitled';
+        button.append(small, strong);
+        return button;
+      };
+
+      const renderRuntimeReaderNavigation = () => {
+        if (!drawerBody || !currentArticle) return;
+        drawerBody.querySelectorAll('[data-runtime-reader-nav-panel]').forEach((node) => node.remove());
+        const articleId = getCurrentRuntimeReaderArticleId();
+        if (!articleId) return;
+        const { previous, next } = getRuntimeReaderNeighbors(articleId);
+        if (!previous && !next) return;
+        const panel = document.createElement('nav');
+        panel.className = 'runtime-reader-nav';
+        panel.dataset.runtimeReaderNavPanel = 'true';
+        panel.setAttribute('aria-label', '上一篇和下一篇');
+        if (previous) panel.append(createRuntimeReaderNavButton(previous, '上一篇'));
+        if (next) panel.append(createRuntimeReaderNavButton(next, '下一篇'));
+        const reader = drawerBody.querySelector('.home-article-reader');
+        const related = reader?.querySelector('.home-article-related');
+        if (related) {
+          related.before(panel);
+        } else if (reader) {
+          reader.append(panel);
+        } else {
+          drawerBody.append(panel);
+        }
+      };
+
+      const syncRuntimeReaderNavigation = () => {
+        if (!currentArticle || !drawerBody?.querySelector('[data-runtime-detail-body]')) return;
+        renderRuntimeReaderNavigation();
+      };
+
+      const updateActiveToc = () => {
+        if (!drawerBody) return;
+        const toc = drawerBody.querySelector('.home-article-toc');
+        const content = drawerBody.querySelector('.home-article-content');
+        if (!toc || !content) return;
+        const headings = [...content.querySelectorAll('h1[id], h2[id], h3[id], h1, h2, h3')].filter((heading) => heading.id);
+        const links = [...toc.querySelectorAll('a[href^="#"]')];
+        if (!headings.length || !links.length) return;
+        const drawerTop = drawerBody.getBoundingClientRect().top;
+        let active = headings[0];
+        for (const heading of headings) {
+          if (heading.getBoundingClientRect().top - drawerTop <= 96) {
+            active = heading;
+          } else {
+            break;
+          }
+        }
+        links.forEach((link) => {
+          const isActive = link.getAttribute('href') === `#${active.id}`;
+          link.classList.toggle('is-active', isActive);
+          if (isActive) link.setAttribute('aria-current', 'true');
+          else link.removeAttribute('aria-current');
+        });
+      };
+
+      const scrollDrawerToHash = (hash) => {
+        if (!drawerBody || !hash) return;
+        const id = decodeURIComponent(String(hash).replace(/^#/, ''));
+        if (!id) return;
+        const target = drawerBody.querySelector(`#${escapeCssIdentifier(id)}`);
+        if (!target) return;
+        const targetTop = target.getBoundingClientRect().top - drawerBody.getBoundingClientRect().top + drawerBody.scrollTop - 18;
+        drawerBody.scrollTo({ top: Math.max(0, targetTop), behavior: 'smooth' });
+        requestAnimationFrame(updateActiveToc);
+      };
+
+      const restoreRuntimeReaderPosition = () => {
+        if (!currentArticle || !drawerBody || pendingHighlightId) return;
+        const storedMemory = getHistoryEntry(currentArticle.id);
+        if (!storedMemory?.scrollTop) return;
+        drawerBody.scrollTop = storedMemory.scrollTop;
+        updateReadingProgress();
+        updateActiveToc();
+      };
+
+      const syncRuntimeTocFromContent = (content) => {
+        const toc = content.querySelector('.home-article-toc');
+        const articleContent = content.querySelector('.home-article-content');
+        if (!toc || !articleContent) return;
+        const headings = [...articleContent.querySelectorAll('h1, h2, h3')]
+          .filter((heading) => heading.textContent?.trim())
+          .map((heading, index) => {
+            if (!heading.id) heading.id = `runtime-heading-${index + 1}`;
+            const depth = Number(heading.tagName.replace('H', '')) || 2;
+            return {
+              id: heading.id,
+              depth,
+              text: heading.textContent.trim()
+            };
+          })
+          .slice(0, 160);
+        if (!headings.length) return;
+        toc.replaceChildren(
+          Object.assign(document.createElement('strong'), { textContent: '目录' }),
+          ...headings.map((heading) => {
+            const link = document.createElement('a');
+            link.href = `#${heading.id}`;
+            link.className = `depth-${heading.depth}`;
+            link.textContent = heading.text;
+            return link;
+          })
+        );
       };
 
       const updateRuntimeHomeMetrics = (articles) => {
@@ -1973,6 +2116,13 @@ const sidebarNavigation = getMyBlogSidebarNavigation(withBase);
           }
           runtimeContentIndexVersion = nextVersion || runtimeContentIndexVersion;
           const articles = Array.isArray(index.articles) ? index.articles.filter((article) => article?.projection?.feed !== false) : [];
+          runtimeReaderArticles = articles.map((article) => ({
+            id: article.id,
+            title: article.title,
+            href: runtimeArticleHref(article),
+            detailPath: article.detailPath,
+            slug: article.slug
+          }));
           const collections = Array.isArray(index.collections)
             ? index.collections.filter((collection) => collection?.projections?.home !== false).slice(0, 12)
             : [];
@@ -2866,22 +3016,15 @@ const sidebarNavigation = getMyBlogSidebarNavigation(withBase);
           if (!detail?.article?.html) return;
           body.innerHTML = detail.article.html;
           body.dataset.runtimeDetailLoaded = 'true';
-          const toc = content.querySelector('.home-article-toc');
-          if (toc && Array.isArray(detail.article.toc) && detail.article.toc.length) {
-            toc.replaceChildren(
-              Object.assign(document.createElement('strong'), { textContent: '目录' }),
-              ...detail.article.toc.map((heading) => {
-                const link = document.createElement('a');
-                link.href = `#${heading.slug}`;
-                link.className = `depth-${heading.depth}`;
-                link.textContent = heading.text;
-                return link;
-              })
-            );
-          }
+          syncRuntimeTocFromContent(content);
+          renderRuntimeReaderNavigation();
+          restoreRuntimeReaderPosition();
           requestAnimationFrame(updateReadingProgress);
+          requestAnimationFrame(updateActiveToc);
           requestAnimationFrame(applyStoredHighlights);
-        } catch {
+        } catch (error) {
+          body.dataset.loadState = 'error';
+          body.dataset.runtimeDetailError = error instanceof Error ? error.message : 'detail-load-error';
           // Keep the lightweight placeholder if the detail payload is unavailable.
         }
       };
@@ -3024,6 +3167,8 @@ const sidebarNavigation = getMyBlogSidebarNavigation(withBase);
           hydrateRuntimeDrawer(content).catch(() => {});
           hydrateCollectionSession(content);
         });
+        requestAnimationFrame(syncRuntimeReaderNavigation);
+        requestAnimationFrame(updateActiveToc);
         requestAnimationFrame(renderReaderMiniGraph);
         requestAnimationFrame(renderSeals);
         if (isBookDrawer && bookId && readHref) {
@@ -3147,7 +3292,10 @@ const sidebarNavigation = getMyBlogSidebarNavigation(withBase);
       });
 
       bookmarkButton?.addEventListener('click', toggleBookmark);
-      drawerBody?.addEventListener('scroll', updateReadingProgress);
+      drawerBody?.addEventListener('scroll', () => {
+        updateReadingProgress();
+        updateActiveToc();
+      });
       drawerBody?.addEventListener('mouseup', () => setTimeout(showSelectionToolbar, 0));
       drawerBody?.addEventListener('click', (event) => {
         const target = event.target instanceof Element ? event.target.closest('[data-memory-drawer]') : null;
@@ -3161,6 +3309,20 @@ const sidebarNavigation = getMyBlogSidebarNavigation(withBase);
         const target = event.target instanceof Element ? event.target.closest('[data-mini-tag]') : null;
         if (!target) return;
         openSearchOverlay({ query: target.dataset.miniTag || '', kind: 'all' });
+      });
+
+      drawerBody?.addEventListener('click', (event) => {
+        const tocLink = event.target instanceof Element ? event.target.closest('.home-article-toc a[href^="#"]') : null;
+        if (tocLink instanceof HTMLAnchorElement) {
+          event.preventDefault();
+          scrollDrawerToHash(tocLink.hash);
+          return;
+        }
+        const navButton = event.target instanceof Element ? event.target.closest('[data-runtime-reader-nav]') : null;
+        if (navButton instanceof HTMLElement) {
+          const drawerId = navButton.dataset.runtimeReaderNav;
+          if (drawerId) openArticleDrawer(drawerId, navButton);
+        }
       });
 
       drawerBody?.addEventListener('click', (event) => {
