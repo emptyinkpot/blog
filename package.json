@@ -109,7 +109,7 @@
     "p-limit": "^3.1.0",
     "p-locate": "^5.0.0",
     "path-exists": "^4.0.0",
-    "path-key": "^3.1.1",
+    "path-key": "^4.0.0",
     "picocolors": "^1.1.1",
     "picomatch": "^2.3.2",
     "playwright": "^1.59.1",
