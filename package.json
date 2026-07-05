@@ -4,7 +4,7 @@
   "private": true,
   "workspaces": [
     "apps/web",
-    "apps/admin-next"
+    "apps/server"
   ],
   "scripts": {
     "run": "npm run run:web",
@@ -16,8 +16,8 @@
     "run:projector": "node tools/server-runtime-content-projector.mjs",
     "run:sse": "node tools/runtime-content-sse-server.mjs",
     "run:openlist-storage": "node tools/server-openlist-storage-maintenance.mjs",
-    "run:admin": "npm --prefix apps/admin-next run dev",
-    "run:admin:start": "npm --prefix apps/admin-next run start",
+    "run:server": "npm --prefix apps/server run dev",
+    "run:server:start": "npm --prefix apps/server run start",
     "run:quartz": "npm --prefix integrations/quartz run dev",
     "verify:all": "npm run check && npm run verify:vault-sync",
     "verify:lint": "eslint \"apps/web/src/**/*.{ts,astro}\" \"tools/**/*.{js,mjs}\" \"*.{js,mjs}\"",
@@ -33,10 +33,10 @@
     "verify:quartz": "npm --prefix integrations/quartz run check",
     "facts:print": "node tools/project-facts.mjs --print",
     "dev": "npm run run:web",
-    "admin:dev": "npm --prefix apps/admin-next run dev",
+    "server:dev": "npm --prefix apps/server run dev",
     "build": "npm run runtime:books && npm --prefix apps/web run build",
-    "admin:build": "npm --prefix apps/admin-next run build",
-    "admin:start": "npm run run:admin:start",
+    "server:build": "npm --prefix apps/server run build",
+    "server:start": "npm run run:server:start",
     "preview": "npm run run:preview",
     "astro": "npm run run:astro",
     "quartz:sync": "npm --prefix integrations/quartz run myblog:sync",

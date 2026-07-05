@@ -32,7 +32,7 @@ Vault
 - `Vault`: the only authoring truth. Markdown, folders and assets remain human-readable and offline-capable; concrete paths are facts, not README truth.
 - `Projection`: build tools normalize Vault and sidecar data into `public-data/`; the website reads projection output instead of inventing content truth.
 - `Web Runtime`: `apps/web` is Astro plus React islands. Runtime concepts are limited to command, overlay, search and reader state.
-- `State Services`: `apps/admin-next` and MySQL store dynamic state only: reader memory, highlights, visual pins, preferences and sync logs.
+- `State Services`: `apps/server` and MySQL store dynamic state only: reader memory, highlights, visual pins, preferences and sync logs.
 
 ## Three Pillars
 
@@ -57,7 +57,7 @@ npm run facts
 ## Repository Shape
 
 - `apps/web`: Astro public shell and frontend runtime.
-- `apps/admin-next`: runtime/admin APIs, reader memory, visual runtime, GitHub/OpenList/DataBase bridges.
+- `apps/server`: Next.js server/admin APIs under `src/app`, with reader memory, visual runtime, GitHub/OpenList/DataBase bridges in `src/lib`.
 - `apps/android-shell`: TWA shell contract.
 - `packages/runtime-kernel`: small runtime event and storage key registry used by `apps/web`; it is not a platform SDK.
 - `integrations/quartz`: embedded Quartz digital-garden substrate. It is an internal integration target, not the repository root and not the primary MyBlog shell.
@@ -70,7 +70,7 @@ Documentation markdown outside this README is intentionally avoided unless it is
 
 ## DataBase Gateway Boundary
 
-MyBlog integrates DataBase through `apps/admin-next/lib/database-gateway-client.mjs`. The adapter is SDK-first: when `@emptyinkpot/database-gateway-generated-client` is installed in the runtime, MyBlog uses the generated OpenAPI client. When the package is absent, the adapter keeps the same Gateway HTTP contract as a fallback so production builds do not depend on an unpublished package.
+MyBlog integrates DataBase through `apps/server/src/lib/database-gateway-client.mjs`. The adapter is SDK-first: when `@emptyinkpot/database-gateway-generated-client` is installed in the runtime, MyBlog uses the generated OpenAPI client. When the package is absent, the adapter keeps the same Gateway HTTP contract as a fallback so production builds do not depend on an unpublished package.
 
 MyBlog must not direct-connect to DataBase MySQL. Canonical Markdown projection writes go through `POST /writes/project-obsidian-markdown`; reader memory, highlights, visual runtime, and OpenList target access go through DataBase Gateway routes exposed by the generated client contract.
 
@@ -89,7 +89,7 @@ npm run server:openlist-storage -- --prune-openlist-file-cache --apply
 
 ## Runtime Database
 
-MyBlog runtime DB is Tencent Cloud CynosDB MySQL through `apps/admin-next`. It owns dynamic state only: reader memory, reader highlights, visual sources, visual pins, visual sync runs, and the explicit plaintext personal information table.
+MyBlog runtime DB is Tencent Cloud CynosDB MySQL through `apps/server`. It owns dynamic state only: reader memory, reader highlights, visual sources, visual pins, visual sync runs, and the explicit plaintext personal information table.
 
 Runtime DB must not store article Markdown bodies, EPUB/PDF/image/video blobs, OpenList files, Tencent COS objects, Quark files, Astro dist, Pagefind output, or Syncthing hot mirror data.
 

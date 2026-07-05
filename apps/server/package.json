@@ -1,5 +1,5 @@
 {
-  "name": "myblog-admin-next",
+  "name": "myblog-server",
   "version": "0.1.0",
   "private": true,
   "scripts": {

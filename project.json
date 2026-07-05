@@ -13,7 +13,7 @@
     "rule": "/srv/myblog/repo is the systemd runtime projector code workspace only; it is forbidden as a deploy authority or editable production source."
   },
   "siteAppRoot": "apps/web",
-  "adminAppRoot": "apps/admin-next",
+  "adminAppRoot": "apps/server",
   "androidShellRoot": "apps/android-shell",
   "runtimeKernelRoot": "packages/runtime-kernel",
   "activeArticleTruthRoot": "public-data/runtime/content-index.json",
@@ -41,7 +41,7 @@
     "S3/WebDAV backends mounted through OpenList"
   ],
   "generatedRuntimeRoot": "/srv/myblog/site/runtime/content-index.json",
-  "runtimeTruth": "MySQL via apps/admin-next",
+  "runtimeTruth": "MySQL via apps/server",
   "canonicalStructuredContentPlatform": {
     "status": "optional-projection",
     "owner": "DataBase",
@@ -167,7 +167,7 @@
     ],
     "generatedRuntimeRoot": "/srv/myblog/site/runtime/content-index.json",
     "activeArticleTruthRoot": "public-data/runtime/content-index.json",
-    "runtimeTruth": "MySQL via apps/admin-next",
+    "runtimeTruth": "MySQL via apps/server",
     "canonicalStructuredContentPlatform": {
       "owner": "DataBase",
       "gatewayEndpoint": "POST /writes/project-obsidian-markdown",
@@ -200,9 +200,9 @@
       "privateEndpointStatus": "not-routable-from-current-lighthouse-as-of-2026-05-10",
       "database": "cloudbase-4glvyyq9f61b19cd",
       "user": "openclaw",
-      "secretSource": "/etc/myblog-admin-next.env",
-      "serviceOwner": "apps/admin-next",
-      "schemaOwner": "apps/admin-next/lib/runtime-db.js",
+      "secretSource": "/etc/myblog-server.env",
+      "serviceOwner": "apps/server",
+      "schemaOwner": "apps/server/src/lib/runtime-db.js",
       "connectionEnv": [
         "MYBLOG_DB_HOST",
         "MYBLOG_DB_PORT",
@@ -242,7 +242,7 @@
       "valueColumn": "secret_value",
       "storageMode": "plaintext-by-user-requirement",
       "purpose": "store personal account/password/API-key style information directly in MySQL as readable text",
-      "owner": "apps/admin-next / MySQL Runtime Layer",
+      "owner": "apps/server / MySQL Runtime Layer",
       "database": "cloudbase-4glvyyq9f61b19cd",
       "warning": "Values are intentionally stored as plaintext in MySQL; do not commit real values to Git or logs."
     },
@@ -703,7 +703,7 @@
       "public-data/books/books-index.json is a regenerable file index projection, not an editable metadata database",
       "public-data/books/books.metadata.json is the current P0 editable metadata layer and must migrate to Directus or an equivalent metadata DB before scaling",
       "browser localStorage is preference/cache/legacy migration only, never runtime truth",
-      "apps/admin-next is a gateway/import/cache/runtime bridge, not a full CMS, media library or search engine",
+      "apps/server is a gateway/import/cache/runtime bridge, not a full CMS, media library or search engine",
       "visitor page loads must read snapshots and caches, not run AI inference or re-index large files",
       "do not describe Directus or Meilisearch as active before deployment and verification"
     ],
@@ -1179,9 +1179,9 @@
       "privateEndpointStatus": "not-routable-from-current-lighthouse-as-of-2026-05-10",
       "database": "cloudbase-4glvyyq9f61b19cd",
       "user": "openclaw",
-      "secretSource": "/etc/myblog-admin-next.env",
-      "serviceOwner": "apps/admin-next",
-      "schemaOwner": "apps/admin-next/lib/runtime-db.js",
+      "secretSource": "/etc/myblog-server.env",
+      "serviceOwner": "apps/server",
+      "schemaOwner": "apps/server/src/lib/runtime-db.js",
       "connectionEnv": [
         "MYBLOG_DB_HOST",
         "MYBLOG_DB_PORT",
@@ -1221,7 +1221,7 @@
       "valueColumn": "secret_value",
       "storageMode": "plaintext-by-user-requirement",
       "purpose": "store personal account/password/API-key style information directly in MySQL as readable text",
-      "owner": "apps/admin-next / MySQL Runtime Layer",
+      "owner": "apps/server / MySQL Runtime Layer",
       "database": "cloudbase-4glvyyq9f61b19cd",
       "warning": "Values are intentionally stored as plaintext in MySQL; do not commit real values to Git or logs."
     }
@@ -1234,7 +1234,7 @@
       "status": "interim-active",
       "route": "apps/web/src/pages/projects/[slug].astro",
       "contentModel": "apps/web/src/content/projects/*.md",
-      "apiOwner": "apps/admin-next/app/api/github/** and apps/admin-next/app/api/projects/[slug]/timeline/route.js",
+      "apiOwner": "apps/server/src/app/api/github/** and apps/server/src/app/api/projects/[slug]/timeline/route.js",
       "capabilities": [
         "repo status projection",
         "issues/pulls/commits/contributors runtime read",
@@ -1552,8 +1552,8 @@
     ],
     "sourcePolicy": "Pinterest/Pixiv/OpenList are bookmark or mirror sources, not frontend live reads; current sync records source links and platform preview URLs without downloading originals",
     "runtimeMirror": {
-      "schemaOwner": "apps/admin-next/lib/runtime-db.js",
-      "syncOwner": "apps/admin-next/lib/visual-runtime.js",
+      "schemaOwner": "apps/server/src/lib/runtime-db.js",
+      "syncOwner": "apps/server/src/lib/visual-runtime.js",
       "snapshotApi": "/api/runtime/visuals/snapshot",
       "syncApi": "/api/runtime/visuals/sync",
       "providers": [
@@ -1600,7 +1600,7 @@
       ],
       "integrationPipeline": [
         "Immich API",
-        "admin-next import",
+        "server import",
         "MySQL runtime snapshot",
         "VisualCollection partition",
         "Search and Graph projection"
@@ -1633,10 +1633,10 @@
   },
   "serverHost": "124.220.233.126",
   "serverRuntimeRoot": "/srv/myblog/site",
-  "adminServerRuntimeRoot": "/srv/myblog/admin-next/current",
-  "adminServerService": "myblog-admin-next.service",
+  "adminServerRuntimeRoot": "/srv/myblog/server/current",
+  "adminServerService": "myblog-server.service",
   "adminServerPort": 4117,
-  "adminServerEnvFile": "/etc/myblog-admin-next.env",
+  "adminServerEnvFile": "/etc/myblog-server.env",
   "nginxSiteConfig": "/etc/nginx/sites-available/myblog.conf",
   "nginxStaticRouteRule": "Astro static site only: location / must use try_files $uri $uri/index.html =404; unknown routes must not fall back to /index.html.",
   "publishMode": "local-build-then-upload-dist",
@@ -1671,7 +1671,7 @@
   "platformRoadmap": [
     "observability layer",
     "content model expansion",
-    "admin-next app-router control surface",
+    "server app-router control surface",
     "api route-handlers under app/api",
     "ai-assisted writing pipeline",
     "releases-current-rollback publish system",
@@ -1679,7 +1679,7 @@
   ],
   "platformExecutionOrder": {
     "P0": [
-      "admin-next bootstrap",
+      "server bootstrap",
       "dashboard page",
       "publish build/release/rollback api",
       "releases-current rollback publish flow"
@@ -1735,7 +1735,7 @@
   "frontendPixelContract": {
     "sources": [
       "apps/web/src/styles/global.css",
-      "apps/admin-next/app/globals.css"
+      "apps/server/src/app/globals.css"
     ],
     "source": "apps/web/src/styles/global.css",
     "rootPx": 16,
@@ -2158,7 +2158,7 @@
       "longTextRule": "evidence-library__mono and source code must use overflow-wrap:anywhere"
     },
     "adminPrototype": {
-      "source": "apps/admin-next/app/globals.css",
+      "source": "apps/server/src/app/globals.css",
       "shellColumns": [
         "240px",
         "1fr"
@@ -2275,7 +2275,7 @@
     "add-system-bar-and-dashboard-signals"
   ],
   "adminPrototype": {
-    "appRoot": "apps/admin-next",
+    "appRoot": "apps/server",
     "routeGroup": "app/admin",
     "pages": [
       "dashboard",
@@ -2406,9 +2406,9 @@
     "privateEndpointStatus": "not-routable-from-current-lighthouse-as-of-2026-05-10",
     "database": "cloudbase-4glvyyq9f61b19cd",
     "user": "openclaw",
-    "secretSource": "/etc/myblog-admin-next.env",
-    "serviceOwner": "apps/admin-next",
-    "schemaOwner": "apps/admin-next/lib/runtime-db.js",
+    "secretSource": "/etc/myblog-server.env",
+    "serviceOwner": "apps/server",
+    "schemaOwner": "apps/server/src/lib/runtime-db.js",
     "connectionEnv": [
       "MYBLOG_DB_HOST",
       "MYBLOG_DB_PORT",
@@ -2447,7 +2447,7 @@
       "valueColumn": "secret_value",
       "storageMode": "plaintext-by-user-requirement",
       "purpose": "store personal account/password/API-key style information directly in MySQL as readable text",
-      "owner": "apps/admin-next / MySQL Runtime Layer",
+      "owner": "apps/server / MySQL Runtime Layer",
       "database": "cloudbase-4glvyyq9f61b19cd",
       "warning": "Values are intentionally stored as plaintext in MySQL; do not commit real values to Git or logs."
     }
@@ -2497,7 +2497,7 @@
       ]
     },
     "stateServices": {
-      "owner": "apps/admin-next + MySQL",
+      "owner": "apps/server + MySQL",
       "owns": [
         "reader memory",
         "reader highlights",
