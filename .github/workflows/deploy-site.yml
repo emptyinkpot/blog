@@ -36,7 +36,7 @@ jobs:
         working-directory: apps/web
 
       - name: Install SSH key
-        uses: webfactory/ssh-agent@v0.9.1
+        uses: webfactory/ssh-agent@v0.10.0
         with:
           ssh-private-key: ${{ secrets.MYBLOG_DEPLOY_SSH_KEY }}
 
